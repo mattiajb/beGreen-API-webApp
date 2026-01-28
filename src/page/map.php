@@ -27,7 +27,7 @@
                     <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
                 </ul>
                 <div class="log-container">
-                    <a href="log.html" class="log-btn"><img src="../src_image/images/white_user.png" alt="Logo user" class="logo-user"> Accedi </a>
+                    <a href="log.php" class="log-btn"><img src="../src_image/images/white_user.png" alt="Logo user" class="logo-user"> Accedi </a>
                     <div class="user-display">
                         <a href="profile.html" class="user-info"> 
                             <span class="user-name">Username</span>

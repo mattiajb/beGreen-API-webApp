@@ -1,0 +1,77 @@
+:root {
+    --primary: #00f2ff;
+    /* Ciano Elettrico */
+    --secondary: #4361ee;
+    /* Blu profondo */
+    --accent: #f72585;
+    /* Magenta per errori */
+    --gold: #ffd700;
+    /* Oro per Utente Plus */
+    --dark-bg: #0b1120;
+    /* Sfondo molto scuro */
+    --card-bg: rgba(30, 41, 59, 0.7);
+    /* Effetto vetro */
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+    --success: #00b894;
+    /* Verde Eco */
+    --warning: #f1c40f;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Inter, system-ui, sans-serif;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-main);
+    background-image:
+        radial-gradient(circle at 10% 20%, rgba(67, 97, 238, 0.2) 0%, transparent 20%),
+        radial-gradient(circle at 90% 80%, rgba(0, 242, 255, 0.15) 0%, transparent 20%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+
+/* NAVBAR */
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    background: rgba(11, 17, 32, 0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.logo-img {
+    height: 60px;
+    width: auto; 
+    margin-right: -17px;  
+}
+
+.logo i { color: var(--primary); }

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <title>Home | beGreen</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Web App progettata per rispondere alle sfide emergenti dell'energia rinnovabile nel settore delle auto elettriche">
+        <link rel="icon" type="image/png" href="../src_image/favicon/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
+        <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
+        <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
+        <link rel="stylesheet" href="../css/style.css">
+        <script src="../js/home_js.js"></script>
+    </head>
+    <body>
+        <!-- NAVBAR -->
+        <header class="site-header">
+            <nav class="navbar">
+                <!-- LOGO -->
+                <a href="home.html" class="logo"><img src="../src_image/images/beGreen_whitelogo.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
+                <!-- LINK PRINCIPALI -->
+                <ul class="nav-links">
+                    <li><a href="home.html" class="nav-item curr">Home</a></li>
+                    <li><a href="map.html" class="nav-item">Charge Map</a></li>
+                    <li><a href="autosalone.html" class="nav-item">Autosalone</a></li>
+                    <!-- SOLO UTENTI PLUS -->
+                    <li><a href="community.html"> Community+ </a></li>
+                    <!-- SOLO ADMIN -->
+                    <li class="nav-admin"><a href="admin.html" class="nav-item"> Admin Panel</a></li>
+                </ul>
+                <!-- AREA AUTENTICAZIONE -->
+                <div class="log-container">
+                    <!-- STATO: NON LOGGATO -->
+                    <a href="log.html" class="log-btn"> Accedi </a>
+                    <!-- STATO: LOGGATO -->
+                    <div class="user-display">
+                        <a href="profile.html" class="user-info"> 
+                            <span class="user-name">Username</span>
+                            <span class="user-type">Utente</span></a>
+                        <a href="home.html" class="logout-btn">Esci</a>
+                    </div>
+                </div>
+            </nav>
+        </header>
+    </body>
+</html>

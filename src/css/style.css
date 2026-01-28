@@ -37,6 +37,10 @@ body {
     overflow-x: hidden;
 }
 
+a {
+    text-decoration: none;
+}
+
 
 /* NAVBAR */
 header {
@@ -113,7 +117,8 @@ nav {
     font-weight: bold;
 }
 
-.nav-plus:hover, .nav-plus.active {
+.nav-plus:hover,
+.nav-plus.active {
     color: #fffacd;
     text-shadow: 0 0 10px rgba(255, 215, 0, 0.6);
 }
@@ -130,7 +135,8 @@ nav {
     font-weight: bold;
 }
 
-.nav-admin:hover, .nav-admin.active {
+.nav-admin:hover,
+.nav-admin.active {
     color: #ff80ab;
     text-shadow: 0 0 10px rgba(247, 37, 133, 0.5);
 }
@@ -138,4 +144,171 @@ nav {
 .nav-admin.active::after {
     background: var(--accent);
     box-shadow: 0 0 10px var(--accent);
+}
+
+/* Pulsanti Auth Navbar */
+.log-container {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-display {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary);
+    font-weight: bold;
+}
+
+.logo-user {
+    height: 17px;
+    width: auto;
+}
+
+.user-type {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    margin-left: 5px;
+    text-transform: uppercase;
+}
+
+.log-btn {
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    border: none;
+    padding: 0.5rem 1.5rem;
+    border-radius: 50px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;           /* Allinea icona e testo */
+    align-items: center;     /* Centra verticalmente */
+    gap: 8px;                /* Spazio tra l'icona e la scritta */
+    text-decoration: none;   /* Toglie la sottolineatura se è un link <a> */
+}
+
+.log-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+}
+
+.auth-btn.logout {
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+}
+
+main {
+    margin-top: 80px;
+    flex: 1;
+    padding: 2rem;
+    max-width: 1200px;
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- HERO SECTION CONTAINER --- */
+.hero-section {
+    display: flex;              /* Mette gli elementi in riga */
+    align-items: center;        /* Li allinea verticalmente al centro */
+    gap: 30px;                  /* Spazio tra testo e iframe */
+    
+    background: var(--card-bg); /* Sfondo effetto vetro */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;        /* Angoli arrotondati */
+    padding: 40px;              /* Spaziatura interna */
+    margin-bottom: 40px;        /* Spazio sotto la sezione */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* --- PARTE SINISTRA: TESTO (3/4) --- */
+.hero-text {
+    flex: 3; /* Prende 3 quote di spazio */
+}
+
+.hero-text h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--text-main);
+    line-height: 1.1;
+}
+
+.hero-text .highlight {
+    color: var(--success); /* Scritta 'Green' in verde */
+    text-shadow: 0 0 15px rgba(0, 184, 148, 0.4);
+}
+
+.hero-text .lead {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    max-width: 90%; /* Evita che il testo sia troppo lungo da leggere */
+}
+
+/* Bottoni CTA */
+.hero-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.cta-primary {
+    background: var(--primary);
+    color: var(--dark-bg);
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+}
+
+.cta-secondary {
+    border: 1px solid var(--text-muted);
+    color: var(--text-main);
+    padding: 12px 25px;
+    border-radius: 50px;
+}
+
+/* --- PARTE DESTRA: IFRAME (1/4) --- */
+.hero-iframe-container {
+    flex: 1; /* Prende 1 quota di spazio */
+    
+    /* Aspetto estetico dell'iframe */
+    height: 250px; /* Altezza fissa per l'iframe */
+    border-radius: 15px;
+    overflow: hidden; /* Taglia gli angoli dell'iframe */
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.hero-iframe-container iframe {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- RESPONSIVE (Per cellulari) --- */
+@media (max-width: 900px) {
+    .hero-section {
+        flex-direction: column; /* Impila uno sotto l'altro */
+        text-align: center;
+    }
+
+    .hero-text {
+        flex: auto;
+        width: 100%;
+    }
+    
+    .hero-actions {
+        justify-content: center;
+    }
+
+    .hero-iframe-container {
+        flex: auto;
+        width: 100%;       /* L'iframe diventa largo tutto lo schermo */
+        height: 300px;     /* Più alto su mobile per visibilità */
+        margin-top: 20px;
+    }
 }

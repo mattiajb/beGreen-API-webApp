@@ -16,31 +16,47 @@
         <!-- NAVBAR -->
         <header class="site-header">
             <nav class="navbar">
-                <!-- LOGO -->
-                <a href="home.html" class="logo"><img src="../src_image/images/beGreen_whitelogo.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
-                <!-- LINK PRINCIPALI -->
+                <a href="home.html" class="logo"><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
                 <ul class="nav-links">
                     <li><a href="home.html" class="nav-item active">Home</a></li>
                     <li><a href="map.html" class="nav-item">Charge Map</a></li>
                     <li><a href="autosalone.html" class="nav-item">Autosalone</a></li>
-                    <!-- SOLO UTENTI PLUS -->
                     <li><a href="community.html" class="nav-plus"> Community+ </a></li>
-                    <!-- SOLO ADMIN -->
                     <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
                 </ul>
-                <!-- AREA AUTENTICAZIONE -->
                 <div class="log-container">
-                    <!-- STATO: NON LOGGATO -->
-                    <a href="log.html" class="log-btn"> Accedi </a>
-                    <!-- STATO: LOGGATO -->
+                    <a href="log.html" class="log-btn"><img src="../src_image/images/user.png" alt="Logo user" class="logo-user"> Accedi </a>
                     <div class="user-display">
                         <a href="profile.html" class="user-info"> 
                             <span class="user-name">Username</span>
                             <span class="user-type">Utente</span></a>
-                        <a href="home.html" class="logout-btn">Esci</a>
+                            <button class="logout-btn" onclick="logout()"> Esci </button>
                     </div>
                 </div>
             </nav>
         </header>
+
+        <!-- SEZIONE 1: HOMEPAGE -->
+        <main>
++           <section id="home-section" class="hero-section">
+                <div class="hero-text">
+                    <h1>Il futuro della mobilità è <span class="highlight">Green</span></h1>
+                    <p class="lead">
+                        Benvenuto in <strong>beGreen</strong>, la piattaforma definitiva per la gestione della tua auto elettrica. 
+                        Monitora i consumi, trova le colonnine di ricarica più vicine e unisciti a una community 
+                        di guidatori consapevoli. Il pianeta ti ringrazia, il tuo portafoglio anche.
+                    </p>
+                <div class="hero-iframe-container">
+                    <iframe 
+                        src="../ew"
+                        width="100%" 
+                        height="100%" 
+                        style="border:0;" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </section> 
     </body>
 </html>

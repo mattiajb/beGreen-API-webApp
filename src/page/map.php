@@ -47,7 +47,7 @@
             <section class="map-section">
                 <div id="map"></div>
 
-                <!-- Stato geolocalizzazione -->
+                <!-- STATO GEOLOCALIZZAZIONE -->
                 <div class="info-panel" id="status">
                     Richiesta posizione in corso...
                 </div>
@@ -58,14 +58,13 @@
                 <h2>Calcolo Ricarica</h2>
                 <p>Seleziona una colonnina dalla mappa per iniziare il calcolo.</p>
 
-                <!-- Placeholder (verrà riempito dopo) -->
                 <div class="calc-placeholder">
                     <form id="calc-form" onsubmit="event.preventDefault(); calcola();">
                         <div class="form-group">
                             <label>Seleziona il tuo veicolo dall'autosalone:</label>
                             <select id="car-select" onchange="updateCarSpecs()">
                                 <option value="">-- Scegli Auto --</option>
-                                <!-- Popolato via JS dall'array simulato -->
+                                <!-- DA POPOLARE CON DB AUTOSALONE -->
                             </select>
                             <div id="car-specs" style="font-size:0.8rem; color:var(--primary); margin-top:5px; height:20px;"></div>
                         </div>
@@ -84,7 +83,7 @@
                     </form>
                     <!-- AREA RISULTATI -->
                     <div id="result-box" class="result-box">
-                            <h3 style="margin-bottom:10px;">Risultato Stima</h3>
+                            <h3 style="margin-bottom:10px;">Stima Risultato</h3>
                             <div style="display: flex; align-items: center; justify-content: space-between;">
                                 <div>
                                     <p>Energia necessaria: <strong id="res-kwh">-</strong> kWh</p>
@@ -92,9 +91,9 @@
                                     <p style="font-size:1.2rem; margin-top:10px;">Tempo Totale: <strong id="res-time" style="color:var(--primary)">-</strong></p>
                                     <p class="guest-msg"><i class="fa-solid fa-lock"></i> Registrati per visualizzare il grafico</p>
                                 </div>
-                                <!-- Elemento Canvas con Lock Overlay per Guest -->
+                                <!-- ELEMENTO VISUALIZZABILE DA USER LOGGATO -->
                                 <div id="canvas-wrapper" class="canvas-container is-guest">
-                                    <div class="guest-lock"><i class="fa-solid fa-lock"></i></div>
+                                    <div class="guest-lock"></div>
                                     <canvas id="batteryCanvas" width="100" height="100"></canvas>
                                 </div>
                             </div>
@@ -182,6 +181,7 @@
                 });
             }
 
+            // --- GESTIONE ERRORI DI GEOLOCALIZZAZIONE ---
             function handleError(error) {
                 switch (error.code) {
                     case error.PERMISSION_DENIED:
@@ -194,6 +194,88 @@
                         statusEl.innerText = "Errore sconosciuto nella geolocalizzazione";
                 }
             }
+
+            // -- FUNZIONI CALCOLO TEMPO DI RICARICA
+
+            // --- DEMO COLLEZIONE DI AUTO
+            const db_auto = [
+                { id: 1, modello: "Tesla Model 3", kwh: 60, max_ac: 11, max_dc: 170 },
+                { id: 2, modello: "Volkswagen ID.3", kwh: 58, max_ac: 11, max_dc: 120 },
+                { id: 3, modello: "Fiat 500e", kwh: 42, max_ac: 11, max_dc: 85 }
+            ];
+
+            let currentUserRole = null;   // oppure 'user', 'plus'
+            let userHistory = [];
+
+            function initCarSelect() {
+                const select = document.getElementById('car-select');
+                db_auto.forEach(auto => {
+                    const opt = document.createElement('option');
+                    opt.value = auto.id;
+                    opt.textContent = auto.modello;
+                    select.appendChild(opt);
+                });
+            }
+
+            // -- FINE DEMO -> RIMUOVERE ^^^
+
+            function updateCarSpecs() {
+            const id = document.getElementById('car-select').value;
+            const specsDiv = document.getElementById('car-specs');
+            if(!id) { specsDiv.innerText = ""; return; }
+            const auto = db_auto.find(a => a.id == id);
+            specsDiv.innerText = `Batteria: ${auto.kwh} kWh | Max AC: ${auto.max_ac} kW | Max DC: ${auto.max_dc} kW`;
+            }
+
+            function calcola() {
+                const carId = document.getElementById('car-select').value;
+                const currentPct = parseInt(document.getElementById('battery-current').value);
+                const stationPower = parseFloat(document.getElementById('power-input').value);
+
+                if(!carId || isNaN(currentPct) || isNaN(stationPower)) { alert("Compila tutti i campi per utilizzare la funzione di calcolo."); return; }
+
+                const auto = db_auto.find(a => a.id == carId);
+                let limitCar = (stationPower > 22) ? auto.max_dc : auto.max_ac;
+                let realPower = Math.min(stationPower, limitCar);
+                let missingKwh = (auto.kwh * (100 - currentPct)) / 100;
+                let timeHours = missingKwh / realPower;
+                let h = Math.floor(timeHours);
+                let m = Math.round((timeHours - h) * 60);
+
+                document.getElementById('result-box').style.display = 'block';
+                document.getElementById('res-kwh').innerText = missingKwh.toFixed(1);
+                document.getElementById('res-power').innerText = realPower;
+                document.getElementById('res-time').innerText = `${h}h ${m}m`;
+                drawCanvas(currentPct);
+
+                const canvasWrapper = document.getElementById('canvas-wrapper');
+                if (currentUserRole) {
+                    canvasWrapper.classList.remove('is-guest');
+                    userHistory.push({
+                        car: auto.modello,
+                        startPct: currentPct,
+                        power: stationPower,
+                        time: `${h}h ${m}m`
+                    });
+                } else {
+                    canvasWrapper.classList.add('is-guest');
+                }
+            }
+
+            function drawCanvas(pct) {
+                const canvas = document.getElementById('batteryCanvas');
+                const ctx = canvas.getContext('2d');
+                ctx.clearRect(0,0,100,100);
+                ctx.beginPath(); ctx.arc(50,50,40,0,2*Math.PI); ctx.strokeStyle="rgba(255,255,255,0.1)"; ctx.lineWidth=10; ctx.stroke();
+                let start = -0.5*Math.PI, end = start + ((pct/100)*2*Math.PI);
+                let col = pct<20?'#ff7675':(pct<50?'#ffeaa7':'#00b894');
+                ctx.beginPath(); ctx.arc(50,50,40,start,end); ctx.strokeStyle=col; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
+                ctx.fillStyle="#fff"; ctx.font="bold 16px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(pct+"%",50,50);
+            }
+
+            // -- DEMO DA SOSTITUIRE CON DB
+            initCarSelect();
+
         </script>
     </body>
 </html>

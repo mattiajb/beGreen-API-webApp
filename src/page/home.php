@@ -81,7 +81,7 @@ $is_admin = ($user_role === 'admin');
         <main>
             <section class="theme-section">
             <div class="main-theme">
-                <div class="space-y-4 text-lg text-gray-600">
+                <div>
                         <h1>Il futuro della mobilità è <span class="highlight">Green</span></h1>
                     <p class="theme">
                         Benvenuto in <strong>beGreen</strong>, la piattaforma definitiva per la gestione della tua auto elettrica. 
@@ -98,7 +98,7 @@ $is_admin = ($user_role === 'admin');
             </section>
 
             <section class="team-container">
-                <h2 class="team-title">beGreen <span class="highlight2">Team</span></h2>
+                <h2 class="team-title">beGreen <span class="highlight">Team</span></h2>
                 <div class="team-grid">
                     <div class="team-card">
                         <div class="avatar-glow">
@@ -154,7 +154,7 @@ $is_admin = ($user_role === 'admin');
                 </div>
             </div>
             <div class="footer-bottom">
-                &copy; 2026 Gruppo beGreen XX - Progetto Tecnologie Web Unisa
+                &copy; 2026 Gruppo beGreen 04 - Progetto Tecnologie Web Unisa 2025/26
             </div>
         </footer>
     </body>

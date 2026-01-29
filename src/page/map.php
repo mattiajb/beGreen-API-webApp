@@ -161,7 +161,6 @@
                             marker.bindPopup(`
                                 <b>${Title}</b><br>
                                 Potenza: ${power} kW<br>
-                                <button onclick="fillCalc(${power})" style="margin-top:5px; cursor:pointer;">Usa questa potenza</button>
                             `);
                         });
                     });

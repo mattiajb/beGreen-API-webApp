@@ -56,7 +56,7 @@ header {
 nav {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1rem 2rem;
+    padding: 0.5rem 2rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -184,10 +184,14 @@ nav {
     font-weight: bold;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;           /* Allinea icona e testo */
-    align-items: center;     /* Centra verticalmente */
-    gap: 8px;                /* Spazio tra l'icona e la scritta */
-    text-decoration: none;   /* Toglie la sottolineatura se è un link <a> */
+    display: flex;
+    /* Allinea icona e testo */
+    align-items: center;
+    /* Centra verticalmente */
+    gap: 8px;
+    /* Spazio tra l'icona e la scritta */
+    text-decoration: none;
+    /* Toglie la sottolineatura se è un link <a> */
 }
 
 .log-btn:hover {
@@ -211,88 +215,293 @@ main {
     margin-right: auto;
 }
 
-/* --- HERO SECTION CONTAINER --- */
-.hero-section {
-    display: flex;              /* Mette gli elementi in riga */
-    align-items: center;        /* Li allinea verticalmente al centro */
-    gap: 30px;                  /* Spazio tra testo e iframe */
-    
-    background: var(--card-bg); /* Sfondo effetto vetro */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;        /* Angoli arrotondati */
-    padding: 40px;              /* Spaziatura interna */
-    margin-bottom: 40px;        /* Spazio sotto la sezione */
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* --- PARTE SINISTRA: TESTO (3/4) --- */
-.hero-text {
-    flex: 3; /* Prende 3 quote di spazio */
-}
-
-.hero-text h1 {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    color: var(--text-main);
-    line-height: 1.1;
-}
-
-.hero-text .highlight {
-    color: var(--success); /* Scritta 'Green' in verde */
-    text-shadow: 0 0 15px rgba(0, 184, 148, 0.4);
-}
-
-.hero-text .lead {
-    font-size: 1.1rem;
-    color: var(--text-muted);
-    margin-bottom: 2rem;
-    max-width: 90%; /* Evita che il testo sia troppo lungo da leggere */
-}
-
-/* Bottoni CTA */
-.hero-actions {
+.theme-section {
     display: flex;
-    gap: 15px;
+    min-height: 80vh;
+    align-items: center;
+    padding: 2rem;
+    gap: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-.cta-primary {
-    background: var(--primary);
-    color: var(--dark-bg);
-    padding: 12px 25px;
-    border-radius: 50px;
-    font-weight: bold;
-    box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
+.main-theme {
+    flex: 2.5;
+    padding-right: 2rem;
+    view-timeline-name: --content-fade;
+    view-timeline-axis: block;
+    animation: fadeOut linear both;
+    animation-timeline: --content-fade;
+    animation-range: exit 0% exit 80%;
 }
 
-.cta-secondary {
-    border: 1px solid var(--text-muted);
-    color: var(--text-main);
-    padding: 12px 25px;
-    border-radius: 50px;
+.iframe-class {
+    flex: 1;
+    height: 500px;
+    position: sticky;
+    top: 100px;
 }
 
-/* --- PARTE DESTRA: IFRAME (1/4) --- */
-.hero-iframe-container {
-    flex: 1; /* Prende 1 quota di spazio */
-    
-    /* Aspetto estetico dell'iframe */
-    height: 250px; /* Altezza fissa per l'iframe */
-    border-radius: 15px;
-    overflow: hidden; /* Taglia gli angoli dell'iframe */
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+.relation-iframe {
+    height: 100%;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    background: white;
 }
 
-.hero-iframe-container iframe {
+.relation-iframe iframe {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    border: none;
 }
+
+.highlight {
+    color: #10b981;
+    font-weight: 800;
+    position: relative;
+}
+
+.highlight::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: #10b981;
+    z-index: -1;
+}
+
+h1 {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    font-weight: 900;
+    color: #00ff91;
+    margin-bottom: 1.5rem;
+    text-shadow: 2px 2px 4px rgba(112, 255, 224, 0.3);
+}
+
+.theme {
+    line-height: 1.8;
+    color: #777777;
+}
+
+/* Definizione dell'animazione di scomparsa */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateY(-50px);
+        filter: blur(4px);
+    }
+}
+
+.team-container {
+    padding: 4rem 2rem;
+    margin-top: 4rem;
+    text-align: center;
+}
+
+.team-title {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 3rem;
+    letter-spacing: 2px;
+}
+
+.highlight2 {
+    color: #00ffc3;
+    font-weight: 800;
+    position: relative;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.team-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Effetto Hover sulla Card */
+.team-card:hover {
+    transform: translateY(-15px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.2);
+}
+
+.avatar-glow {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 1.5rem;
+    border-radius: 50%;
+    padding: 5px;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    position: relative;
+    box-shadow: 0 0 20px rgba(0, 242, 255, 0.3);
+}
+
+.avatar-glow img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--dark-bg);
+    object-fit: contain;
+    padding: 10px;
+}
+
+.team-card h3 {
+    color: var(--text-main);
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+}
+
+/* Opzionale: aggiunge un riflesso tech alla card */
+.team-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg,
+            transparent,
+            rgba(0, 242, 255, 0.05),
+            transparent);
+    transition: 0.5s;
+}
+
+.team-card:hover::before {
+    left: 100%;
+}
+
+footer {
+    background-color: rgba(11, 17, 32, 0.95);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 3rem 2rem 1rem;
+    margin-top: 4rem;
+    color: var(--text-muted);
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    margin-bottom: 2rem;
+}
+
+.footer-col h3 {
+    color: var(--primary);
+    margin-bottom: 1.2rem;
+    font-size: 1.1rem;
+    position: relative;
+    padding-bottom: 0.5rem;
+}
+
+.footer-col h3::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 40px;
+    height: 2px;
+    background: var(--secondary);
+}
+
+.footer-links li {
+    list-style: none;
+    display: block;
+    transition: all 0.3s ease-in-out;
+    cursor: default;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+}
+
+.footer-links li a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.footer-links li:hover {
+    transform: translateX(8px); 
+}
+
+/* 3. Gestione Colori */
+.footer-links li:not(.founder):hover,
+.footer-links li:not(.founder):hover a {
+    color: var(--primary);
+}
+
+.footer-links li.founder {
+    cursor: url('../src_image/images/crown-3-24.png'), pointer !important;
+}
+
+.footer-links li.founder:hover {
+    color: #FFD700 !important;
+}
+
+.social-icons {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.social-btn {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+.social-btn:hover {
+    background: var(--primary);
+    color: var(--dark-bg);
+    transform: translateY(-3px);
+}
+
+.footer-bottom {
+    text-align: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.85rem;
+}
+
+
+
 
 /* --- RESPONSIVE (Per cellulari) --- */
 @media (max-width: 900px) {
     .hero-section {
-        flex-direction: column; /* Impila uno sotto l'altro */
+        flex-direction: column;
+        /* Impila uno sotto l'altro */
         text-align: center;
     }
 
@@ -300,15 +509,17 @@ main {
         flex: auto;
         width: 100%;
     }
-    
+
     .hero-actions {
         justify-content: center;
     }
 
     .hero-iframe-container {
         flex: auto;
-        width: 100%;       /* L'iframe diventa largo tutto lo schermo */
-        height: 300px;     /* Più alto su mobile per visibilità */
+        width: 100%;
+        /* L'iframe diventa largo tutto lo schermo */
+        height: 300px;
+        /* Più alto su mobile per visibilità */
         margin-top: 20px;
     }
 }
@@ -319,9 +530,9 @@ main {
     min-width: 300px;
     height: 100%;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-        
+
 .map-layout {
     display: flex;
     height: auto;
@@ -337,7 +548,7 @@ main {
     flex: 1;
     color: white;
     padding: 20px;
-    border-left: 1px solid rgba(255,255,255,0.1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 10;
     overflow-y: auto;
 }
@@ -350,17 +561,26 @@ main {
 .calc-placeholder {
     margin-top: 20px;
     padding: 15px;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 10px;
     font-style: italic;
 }
 
 /* -- FUNZIONE DI CALCOLO -- */
-.form-group { margin-bottom: 1.2rem; }
-        
-label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
-        
-select, input, textarea {
+.form-group {
+    margin-bottom: 1.2rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+select,
+input,
+textarea {
     width: 100%;
     padding: 12px;
     background: rgba(0, 0, 0, 0.3);
@@ -371,13 +591,18 @@ select, input, textarea {
     transition: border-color 0.3s;
 }
 
-select:focus, input:focus, textarea:focus {
+select:focus,
+input:focus,
+textarea:focus {
     outline: none;
     border-color: var(--primary);
     box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
 }
 
-textarea { resize: vertical; min-height: 100px; }
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
 
 .calc-btn {
     width: 100%;
@@ -393,7 +618,9 @@ textarea { resize: vertical; min-height: 100px; }
     transition: background 0.3s;
 }
 
-.calc-btn:hover { background: #00a383; }
+.calc-btn:hover {
+    background: #00a383;
+}
 
 /* Risultati e Guest Blocker */
 .result-box {
@@ -402,7 +629,8 @@ textarea { resize: vertical; min-height: 100px; }
     background: rgba(0, 242, 255, 0.05);
     border-radius: 12px;
     border-left: 4px solid var(--primary);
-    display: none; /* Nascosto di default */
+    display: none;
+    /* Nascosto di default */
     animation: slideUp 0.3s ease-out;
 }
 
@@ -415,7 +643,10 @@ textarea { resize: vertical; min-height: 100px; }
 
 .guest-lock {
     position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(11, 17, 32, 0.6);
     backdrop-filter: blur(4px);
     display: flex;
@@ -424,7 +655,8 @@ textarea { resize: vertical; min-height: 100px; }
     border-radius: 50%;
     color: var(--white);
     font-size: 1.5rem;
-    opacity: 0; /* Invisibile se loggato */
+    opacity: 0;
+    /* Invisibile se loggato */
     transition: opacity 0.3s;
     pointer-events: none;
     z-index: 10;
@@ -435,7 +667,7 @@ textarea { resize: vertical; min-height: 100px; }
     pointer-events: all;
     cursor: not-allowed;
 }
-        
+
 .guest-msg {
     font-size: 0.8rem;
     text-align: center;
@@ -444,15 +676,23 @@ textarea { resize: vertical; min-height: 100px; }
     display: none;
 }
 
-.is-guest .guest-msg { display: block; }
+.is-guest .guest-msg {
+    display: block;
+}
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 #batteryCanvas {
     width: 100px;
     height: 100px;
 }
-

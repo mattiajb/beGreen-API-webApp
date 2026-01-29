@@ -30,14 +30,13 @@ CREATE TABLE charging_stations (
     address VARCHAR(255)
 );
 
--- 4. Tabella Veicoli (per autosalone.html)
+-- 4. Tabella Veicoli
 CREATE TABLE vehicles (
     id SERIAL PRIMARY KEY,
-    brand VARCHAR(50),
-    model VARCHAR(50),
-    price DECIMAL(10,2),
-    image_url VARCHAR(255),
-    description TEXT
+    brand VARCHAR(50) NOT NULL,
+    model VARCHAR(100) NOT NULL,
+    battery_capacity NUMERIC(5, 2) NOT NULL, -- IMPORTANTE: deve chiamarsi così
+    max_charge_power NUMERIC(5, 2) NOT NULL
 );
 
 -- 5. Tabella Community (per community.html - accessibile solo a Plus/Admin)
@@ -70,11 +69,11 @@ INSERT INTO charging_stations (name, latitude, longitude, status, power_kw, addr
 ('Stazione Manutenzione', 40.700000, 14.750000, 'maintenance', 11, 'Via dei Guasti, Salerno');
 
 -- Inserimento Veicoli
-INSERT INTO vehicles (brand, model, price, description) VALUES
-('Tesla', 'Model 3', 42990.00, 'L''auto elettrica per eccellenza. Autonomia elevata e tecnologia all''avanguardia.'),
-('Fiat', '500e', 29950.00, 'L''icona italiana diventa elettrica. Perfetta per la città.'),
-('Hyundai', 'Ioniq 5', 45000.00, 'Design futuristico e ricarica ultra-rapida.'),
-('Volkswagen', 'ID.4', 43000.00, 'Il SUV elettrico spazioso e confortevole.');
+INSERT INTO vehicles (brand, model, battery_capacity, max_charge_power) VALUES 
+('Tesla', 'Model 3 Standard', 57.5, 170.0),
+('Fiat', '500e', 42.0, 85.0),
+('Volkswagen', 'ID.3 Pro', 58.0, 120.0),
+('Hyundai', 'Kona Electric', 64.0, 77.0);
 
 -- Inserimento Post Community (Visibili solo a Plus/Admin)
 INSERT INTO community_posts (user_id, title, content) VALUES

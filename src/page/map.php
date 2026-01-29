@@ -1,6 +1,17 @@
 <?php
 session_start();
 require_once 'db.php';
+
+if ($db) {
+    $query = "SELECT id, brand, model, battery_capacity, max_charge_power FROM vehicles ORDER BY brand ASC";
+    $result = pg_query($db, $query);
+    $cars = pg_fetch_all($result);
+    if (!$cars) $cars = []; // Se vuoto
+} else {
+    $cars = [];
+    $error_db = "Errore connessione database";
+}
+
 $is_logged = false;
 $username = "Ospite";
 $user_role = "guest"; // Ruoli possibili: guest, user, plus, admin
@@ -28,20 +39,21 @@ $is_admin = ($user_role === 'admin');
 
 <!DOCTYPE html>
 <html lang="it">
-    <head>
-        <title>Charge Map | beGreen</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
-        <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
-        <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
-        <link rel="stylesheet" href="../css/style.css"> 
-        <!-- STYLESHEET DELLA MAPPA -> LIBRERIA JS LEAFLET -->
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    </head>
-    <body>
-        <!-- NAVBAR -->
-        <header class="site-header">
+<head>
+    <title>Charge Map | beGreen</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web App progettata per rispondere alle sfide emergenti dell'energia rinnovabile nel settore delle auto elettriche">
+    <link rel="icon" type="image/png" href="../src_image/favicon/favicon-96x96.png" sizes="96x96" />
+    <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
+    <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
+    <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="site-header">
             <nav class="navbar">
                 <a href="home.php" class="logo"><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
                 <ul class="nav-links">
@@ -78,214 +90,101 @@ $is_admin = ($user_role === 'admin');
             </nav>
         </header>
 
-        <!-- IMPORT LIBRERIA DELLA MAPPA -> LIBRERIA JS LEAFLET -->
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <main class="map-layout">
+        <section class="map-section">
+            <div id="map"></div>
+            <div class="info-panel" id="status">In attesa di posizione...</div>
+        </section>
 
-        <main class="map-layout">
+        <aside class="calc-section">
+            <h2>Calcolo Ricarica</h2>
+            <p>Seleziona una colonnina dalla mappa.</p>
 
-            <!-- ===== COLONNA SINISTRA: MAPPA ===== -->
-            <section class="map-section">
-                <div id="map"></div>
+            <div class="calc-placeholder">
+                <form id="calc-form">
+                    <div class="form-group">
+                        <label>Seleziona il tuo veicolo:</label>
+                        
+                        <select id="car-select" required onchange="updateCarSpecs()">
+                            <option value="">-- Scegli Auto --</option>
+                            <?php foreach($cars as $car): ?>
+                                <option 
+                                    value="<?php echo $car['id']; ?>" 
+                                    data-battery="<?php echo $car['battery_capacity']; ?>"
+                                    data-power="<?php echo $car['max_charge_power']; ?>">
+                                    <?php echo $car['brand'] . " " . $car['model']; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div id="car-specs-display" style="font-size:0.85rem; color:#00aaa0; margin-top:5px; min-height:20px;"></div>
+                    </div>
 
-                <!-- STATO GEOLOCALIZZAZIONE -->
-                <div class="info-panel" id="status">
-                    Richiesta posizione in corso...
-                </div>
-            </section>
+                    <div class="form-group">
+                        <label>Batteria Attuale (%):</label>
+                        <input type="number" id="battery-current" min="1" max="100" placeholder="Es: 20" required>
+                    </div>
 
-            <!-- ===== COLONNA DESTRA: CALCOLO ===== -->
-            <aside class="calc-section">
-                <h2>Calcolo Ricarica</h2>
-                <p>Seleziona una colonnina dalla mappa per iniziare il calcolo.</p>
+                    <div class="form-group">
+                        <label>Potenza Colonnina (kW):</label>
+                        <input type="number" id="power-input" step="0.1" placeholder="Seleziona dalla mappa" required>
+                    </div>
 
-                <div class="calc-placeholder">
-                    <form id="calc-form" onsubmit="event.preventDefault(); calcola();">
-                        <div class="form-group">
-                            <label>Seleziona il tuo veicolo dall'autosalone:</label>
-                            <select id="car-select" onchange="updateCarSpecs()">
-                                <option value="">-- Scegli Auto --</option>
-                                <!-- DA POPOLARE CON DB AUTOSALONE -->
-                            </select>
-                            <div id="car-specs" style="font-size:0.8rem; color:var(--primary); margin-top:5px; height:20px;"></div>
-                        </div>
+                    <button type="submit" class="calc-btn">Calcola Tempo</button>
+                </form>
 
-                        <div class="form-group">
-                            <label>Percentuale Batteria Attuale (%):</label>
-                            <input type="number" id="battery-current" min="0" max="99" placeholder="Es: 20">
-                        </div>
-
-                        <div class="form-group">
-                            <label>Potenza Colonnina (kW):</label>
-                            <input type="number" id="power-input" placeholder="Seleziona dalla mappa o scrivi qui">
-                        </div>
-
-                        <button type="submit" class="calc-btn">Calcola Tempo</button>
-                    </form>
-                    <!-- AREA RISULTATI -->
-                    <div id="result-box" class="result-box">
-                            <h3 style="margin-bottom:10px;">Stima Risultato</h3>
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <div>
-                                    <p>Energia necessaria: <strong id="res-kwh">-</strong> kWh</p>
-                                    <p>Potenza effettiva: <strong id="res-power">-</strong> kW</p>
-                                    <p style="font-size:1.2rem; margin-top:10px;">Tempo Totale: <strong id="res-time" style="color:var(--primary)">-</strong></p>
-                                </div>
-                            </div>
+                <div id="result-box" class="result-box" style="display:none;">
+                    <h3>Risultato Stima</h3>
+                    <div class="result-content">
+                        <div class="text-data">
+                            <p>Energia necessaria: <strong id="res-kwh">-</strong> kWh</p>
+                            <p>Potenza effettiva: <strong id="res-power">-</strong> kW</p>
+                            <p class="time-big" style="font-size: 1.5rem; margin-top: 15px; color: #00aaa0;">
+                                Tempo Totale: <strong id="res-time">-</strong>
+                            </p>
                         </div>
                     </div>
                 </div>
-            </aside>
+            </div>
+        </aside>
+    </main>
 
-        </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="../js/map.js"></script>
 
-        <script>
-            // --- CONFIGURAZIONE ---
-            const API_KEY = '8062adbb-9f3f-4cab-9a2d-ada3ef4a5594'; 
-            const statusEl = document.getElementById('status');
-            let map;
-
-            // --- GEOLOCALIZZAZIONE UTENTE ---
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(initMap, handleError);
-            } else {
-                statusEl.innerText = "Il tuo browser non supporta la geolocalizzazione.";
-            }
-
-            // --- CREAZIONE MARKER UTENTE ---
-            const userIcon = L.icon({
-                iconUrl: '../src_image/images/user_marker.png', 
-                iconSize: [40, 40],        
-                iconAnchor: [20, 40],      
-                popupAnchor: [0, -40]      
-            });
-
-            // --- CREAZIONE MAPPA ---
-            function initMap(position) {
-                statusEl.innerText = "Geolocalizzazione avvenuta correttamente";
-
-                const { latitude, longitude } = position.coords;
-
-                map = L.map('map').setView([latitude, longitude], 13);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors - © beGreen'
-                }).addTo(map);
-
-                L.marker([latitude, longitude], {icon: userIcon})
-                    .addTo(map)
-                    .bindPopup("<b>La tua posizione</b>")
-                    .openPopup();
-                    
-
-                loadStations(latitude, longitude);
-            }
-
-            // --- CALCOLO STAZIONI DI RICARICA ---
-            function loadStations(lat, lon) {
-                const url = `https://api.openchargemap.io/v3/poi/?output=json&latitude=${lat}&longitude=${lon}&distance=20&distanceunit=KM&maxresults=30&key=${API_KEY}`;
-
-                fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        data.forEach(station => {
-                            const { Latitude, Longitude, Title } = station.AddressInfo;
-                            const power = station.Connections[0]?.PowerKW || "N/D";
-
-                            const marker = L.marker([Latitude, Longitude]).addTo(map);
-                            marker.bindPopup(`
-                                <b>${Title}</b><br>
-                                Potenza: ${power} kW<br>
-                            `);
-                        });
-                    });
-            }
-
-            // --- POSIZIONAMENTO MARKER SULLA MAPPA ---
-            function renderMarkers(stations) {
-                stations.forEach(station => {
-                    const { Latitude, Longitude } = station.AddressInfo;
-                    const title = station.AddressInfo.Title;
-                    const address = station.AddressInfo.AddressLine1;
-
-                    // --- CREAZIONE MARKER X OGNI STAZIONE ---
-                    L.marker([Latitude, Longitude])
-                        .addTo(map)
-                        .bindPopup(`<b>${title}</b><br>${address || 'Indirizzo non disponibile'}`);
-                });
-            }
-
-            // --- GESTIONE ERRORI DI GEOLOCALIZZAZIONE ---
-            function handleError(error) {
-                switch (error.code) {
-                    case error.PERMISSION_DENIED:
-                        statusEl.innerText = "Permesso di geolocalizzazione negato";
-                        break;
-                    case error.POSITION_UNAVAILABLE:
-                        statusEl.innerText = "Posizione non disponibile";
-                        break;
-                    default:
-                        statusEl.innerText = "Errore sconosciuto nella geolocalizzazione";
-                }
-            }
-
-            // -- FUNZIONI CALCOLO TEMPO DI RICARICA
-
-            // --- DEMO COLLEZIONE DI AUTO
-            const db_auto = [
-                { id: 1, modello: "Tesla Model 3", kwh: 60, max_ac: 11, max_dc: 170 },
-                { id: 2, modello: "Volkswagen ID.3", kwh: 58, max_ac: 11, max_dc: 120 },
-                { id: 3, modello: "Fiat 500e", kwh: 42, max_ac: 11, max_dc: 85 }
-            ];
-
-            let currentUserRole = null;   // oppure 'user', 'plus'
-            let userHistory = [];
-
-            function initCarSelect() {
-                const select = document.getElementById('car-select');
-                db_auto.forEach(auto => {
-                    const opt = document.createElement('option');
-                    opt.value = auto.id;
-                    opt.textContent = auto.modello;
-                    select.appendChild(opt);
-                });
-            }
-
-            // -- FINE DEMO -> RIMUOVERE ^^^
-
-            function updateCarSpecs() {
-            const id = document.getElementById('car-select').value;
-            const specsDiv = document.getElementById('car-specs');
-            if(!id) { specsDiv.innerText = ""; return; }
-            const auto = db_auto.find(a => a.id == id);
-            specsDiv.innerText = `Batteria: ${auto.kwh} kWh | Max AC: ${auto.max_ac} kW | Max DC: ${auto.max_dc} kW`;
-            }
-
-            function calcola() {
-                const carId = document.getElementById('car-select').value;
-                const currentPct = parseInt(document.getElementById('battery-current').value);
-                const stationPower = parseFloat(document.getElementById('power-input').value);
-
-                if(!carId || isNaN(currentPct) || isNaN(stationPower)) { alert("Compila tutti i campi per utilizzare la funzione di calcolo."); return; }
-
-                const auto = db_auto.find(a => a.id == carId);
-                let limitCar = (stationPower > 22) ? auto.max_dc : auto.max_ac;
-                let realPower = Math.min(stationPower, limitCar);
-                let missingKwh = (auto.kwh * (100 - currentPct)) / 100;
-                let timeHours = missingKwh / realPower;
-                let h = Math.floor(timeHours);
-                let m = Math.round((timeHours - h) * 60);
-
-                document.getElementById('result-box').style.display = 'block';
-                document.getElementById('res-kwh').innerText = missingKwh.toFixed(1);
-                document.getElementById('res-power').innerText = realPower;
-                document.getElementById('res-time').innerText = `${h}h ${m}m`;
-        
-            }
-
-            // -- DEMO DA SOSTITUIRE CON DB
-            initCarSelect();
-
-        </script>
-        
-    </body>
+            <footer>
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" style="height: 40px; width: auto; margin-bottom: -12px;"> beGreen </h3>
+                    <p style="margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6;"> Il punto di riferimento per la mobilità elettrica. </p>
+                    <div class="social-icons">
+                        <a href="#" class="social-btn"><i class="fa-brands fa-github"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Link Rapidi</h3>
+                    <ul class="footer-links">
+                        <li><a href="home.php">Home</a></li>
+                        <li><a href="map.php">Charge Map</a></li>
+                        <li><a href="autosalone.html">Autosalone</a></li>
+                        <?php if ($can_access_plus): ?>
+                            <li><a href="community.html">Community Forum</a></li>
+                        <?php endif; ?>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Il Team</h3>
+                    <ul class="footer-links">
+                        <li class="founder">Mattia Gerardo Bavaro</li>
+                        <li class="founder">Mario Mele</li>
+                        <li class="founder">Cosimo Rivellini</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                &copy; 2026 Gruppo beGreen 04 - Progetto Tecnologie Web Unisa 2025/26
+            </div>
+        </footer>
+</body>
 </html>

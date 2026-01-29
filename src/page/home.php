@@ -50,7 +50,7 @@ $is_admin = ($user_role === 'admin');
                     <li><a href="autosalone.php" class="nav-item">Autosalone</a></li>
 
                     <?php if ($can_access_plus): ?>
-                        <li><a href="community.html" class="nav-plus"> Community+ </a></li>
+                        <li><a href="community.php" class="nav-plus"> Community+ </a></li>
                     <?php endif; ?>
 
                     <?php if ($is_admin): ?>
@@ -65,7 +65,7 @@ $is_admin = ($user_role === 'admin');
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="profile.html" class="user-info"> 
+                            <a href="profile.php" class="user-info"> 
                                 <span class="user-name"><?php echo $username; ?></span>
                                 <span class="user-type"><?php echo $user_label; ?></span>
                             </a>
@@ -146,7 +146,7 @@ $is_admin = ($user_role === 'admin');
                         <li><a href="map.php">Charge Map</a></li>
                         <li><a href="autosalone.html">Autosalone</a></li>
                         <?php if ($can_access_plus): ?>
-                            <li><a href="community.html">Community+</a></li>
+                            <li><a href="community.html">Community Forum</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>

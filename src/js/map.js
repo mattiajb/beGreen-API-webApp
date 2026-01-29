@@ -45,7 +45,7 @@ function initApp() {
 
 function initMap(position) {
     const { latitude, longitude } = position.coords;
-    statusEl.innerText = "Posizione trovata. Caricamento colonnine...";
+    statusEl.innerText = "Posizione trovata. Ricerco le colonnine...";
 
     // Creazione Mappa
     map = L.map('map').setView([latitude, longitude], 13);
@@ -56,7 +56,7 @@ function initMap(position) {
 
     // Marker posizione utente
     L.marker([latitude, longitude], {icon: userIcon}).addTo(map)
-        .bindPopup("<b>Tu sei qui</b>").openPopup();
+        .bindPopup("<b>La tua posizione</b>").openPopup();
 
     // Caricamento stazioni
     fetchStations(latitude, longitude);
@@ -64,7 +64,7 @@ function initMap(position) {
 
 function fetchStations(lat, lon) {
     // API OpenChargeMap: raggio 20KM, max 50 risultati
-    const url = `https://api.openchargemap.io/v3/poi/?output=json&latitude=${lat}&longitude=${lon}&distance=20&distanceunit=KM&maxresults=50&key=${API_KEY_OCM}`;
+    const url = `https://api.openchargemap.io/v3/poi/?output=json&latitude=${lat}&longitude=${lon}&distance=30&distanceunit=KM&maxresults=50&key=${API_KEY_OCM}`;
 
     fetch(url)
         .then(res => res.json())
@@ -109,7 +109,7 @@ function fetchStations(lat, lon) {
                 `;
                 marker.bindPopup(popupContent);
             });
-            statusEl.innerText = `Trovate ${data.length} stazioni nei dintorni.`;
+            statusEl.innerText = `Trovate ${data.length} stazioni nel raggio di 30 Km.`;
         })
         .catch(err => {
             console.error("Errore API:", err);

@@ -36,6 +36,7 @@ $is_admin = ($user_role === 'admin');
         <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="../css/style.css"> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     </head>
     <body>
         <!-- NAVBAR -->
@@ -48,7 +49,7 @@ $is_admin = ($user_role === 'admin');
                     <li><a href="autosalone.php" class="nav-item active">Autosalone</a></li>
 
                     <?php if ($can_access_plus): ?>
-                        <li><a href="community.html" class="nav-plus"> Community+ </a></li>
+                        <li><a href="community.php" class="nav-plus"> Community+ </a></li>
                     <?php endif; ?>
 
                     <?php if ($is_admin): ?>
@@ -63,7 +64,7 @@ $is_admin = ($user_role === 'admin');
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="profile.html" class="user-info"> 
+                            <a href="profile.php" class="user-info"> 
                                 <span class="user-name"><?php echo $username; ?></span>
                                 <span class="user-type"><?php echo $user_label; ?></span>
                             </a>
@@ -94,9 +95,9 @@ $is_admin = ($user_role === 'admin');
                     <ul class="footer-links">
                         <li><a href="home.php">Home</a></li>
                         <li><a href="map.php">Charge Map</a></li>
-                        <li><a href="autosalone.html">Autosalone</a></li>
+                        <li><a href="autosalone.php">Autosalone</a></li>
                         <?php if ($can_access_plus): ?>
-                            <li><a href="community.html">Community Forum</a></li>
+                            <li><a href="community.php">Community Forum</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>

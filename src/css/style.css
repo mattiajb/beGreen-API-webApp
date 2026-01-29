@@ -748,25 +748,49 @@ input:focus {
 }
 
 #register-container .form-group {
-    margin-bottom: 0.8rem; /* Era 1.3rem, lo riduciamo sensibilmente */
+    margin-bottom: 0.8rem; 
 }
 
-/* Compattiamo l'header per recuperare spazio in alto */
 #register-container .auth-header {
-    margin-bottom: 1.2rem; /* Ridotto per avvicinare il titolo ai campi */
+    margin-bottom: 1.2rem; 
 }
 
-/* Riduciamo lo spazio sopra il pulsante e il toggle */
 #register-container .auth-btn {
     margin-top: 0.5rem;
 }
 
 #register-container .auth-toggle {
-    margin-top: 1rem; /* Era 1.6rem */
+    margin-top: 1rem; 
 }
 
-/* Rimpiccioliamo leggermente le label per risparmiare pixel */
 #register-container label {
     margin-bottom: 0.2rem;
     font-size: 0.8rem;
+}
+
+.plus {
+    margin-top: 2rem;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.3));
+    border: 1px solid var(--gold);
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.plus-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(0, 0, 0, 0.3));
+    color: var(--gold);
+    transition: transform 0.2s, box-shadow 0.2s;
+    font-size: large;
+}
+
+.plus-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(242, 255, 0, 0.6);
 }

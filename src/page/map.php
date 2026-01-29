@@ -1,3 +1,31 @@
+<?php
+session_start();
+require_once 'db.php';
+$is_logged = false;
+$username = "Ospite";
+$user_role = "guest"; // Ruoli possibili: guest, user, plus, admin
+$user_label = "Visitatore";
+
+if (isset($_SESSION['user_id'])) {
+    $is_logged = true;
+    $username = htmlspecialchars($_SESSION['username']); // Protezione XSS
+    $user_role = $_SESSION['role']; 
+    switch ($user_role) {
+        case 'admin':
+            $user_label = "Amministratore";
+            break;
+        case 'plus':
+            $user_label = "Utente Plus";
+            break;
+        default:
+            $user_label = "Utente Standard";
+            break;
+    }
+}
+$can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
+$is_admin = ($user_role === 'admin');
+?>
+
 <!DOCTYPE html>
 <html lang="it">
     <head>
@@ -7,10 +35,7 @@
         <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
         <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
-        <link rel="stylesheet" href="../css/style.css">
-        <!-- CLASSE ESTERNA DA VALUTARE -->
-        <!-- <script src="../js/map_js.js"></script> -->
-        
+        <link rel="stylesheet" href="../css/style.css"> 
         <!-- STYLESHEET DELLA MAPPA -> LIBRERIA JS LEAFLET -->
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     </head>
@@ -18,22 +43,37 @@
         <!-- NAVBAR -->
         <header class="site-header">
             <nav class="navbar">
-                <a href="home.html" class="logo"><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
+                <a href="home.php" class="logo"><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
                 <ul class="nav-links">
-                    <li><a href="home.html" class="nav-item">Home</a></li>
+                    <li><a href="home.php" class="nav-item">Home</a></li>
                     <li><a href="map.php" class="nav-item active">Charge Map</a></li>
                     <li><a href="autosalone.html" class="nav-item">Autosalone</a></li>
-                    <li><a href="community.html" class="nav-plus"> Community+ </a></li>
-                    <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
+
+                    <?php if ($can_access_plus): ?>
+                        <li><a href="community.html" class="nav-plus"> Community+ </a></li>
+                    <?php endif; ?>
+
+                    <?php if ($is_admin): ?>
+                        <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
+                    <?php endif; ?>
                 </ul>
+
                 <div class="log-container">
-                    <a href="log.php" class="log-btn"><img src="../src_image/images/white_user.png" alt="Logo user" class="logo-user"> Accedi </a>
-                    <div class="user-display">
-                        <a href="profile.html" class="user-info"> 
-                            <span class="user-name">Username</span>
-                            <span class="user-type">Utente</span></a>
-                            <button class="logout-btn" onclick="logout()"> Esci </button>
-                    </div>
+                    <?php if (!$is_logged): ?>
+                        <a href="log.php" class="log-btn">
+                            <img src="../src_image/images/white_user.png" alt="Logo user" class="logo-user"> Accedi 
+                        </a>
+                    <?php else: ?>
+                        <div class="user-display">
+                            <a href="profile.html" class="user-info"> 
+                                <span class="user-name"><?php echo $username; ?></span>
+                                <span class="user-type"><?php echo $user_label; ?></span>
+                            </a>
+                            <a href="logout.php" class="logout-btn-link">
+                                <button class="logout-btn"> Esci </button>
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </nav>
         </header>
@@ -89,12 +129,6 @@
                                     <p>Energia necessaria: <strong id="res-kwh">-</strong> kWh</p>
                                     <p>Potenza effettiva: <strong id="res-power">-</strong> kW</p>
                                     <p style="font-size:1.2rem; margin-top:10px;">Tempo Totale: <strong id="res-time" style="color:var(--primary)">-</strong></p>
-                                    <p class="guest-msg"><i class="fa-solid fa-lock"></i> Registrati per visualizzare il grafico</p>
-                                </div>
-                                <!-- ELEMENTO VISUALIZZABILE DA USER LOGGATO -->
-                                <div id="canvas-wrapper" class="canvas-container is-guest">
-                                    <div class="guest-lock"></div>
-                                    <canvas id="batteryCanvas" width="100" height="100"></canvas>
                                 </div>
                             </div>
                         </div>
@@ -134,7 +168,7 @@
                 map = L.map('map').setView([latitude, longitude], 13);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '© OpenStreetMap contributors - beGreen'
+                    attribution: '© OpenStreetMap contributors - © beGreen'
                 }).addTo(map);
 
                 L.marker([latitude, longitude], {icon: userIcon})
@@ -245,36 +279,13 @@
                 document.getElementById('res-kwh').innerText = missingKwh.toFixed(1);
                 document.getElementById('res-power').innerText = realPower;
                 document.getElementById('res-time').innerText = `${h}h ${m}m`;
-                drawCanvas(currentPct);
-
-                const canvasWrapper = document.getElementById('canvas-wrapper');
-                if (currentUserRole) {
-                    canvasWrapper.classList.remove('is-guest');
-                    userHistory.push({
-                        car: auto.modello,
-                        startPct: currentPct,
-                        power: stationPower,
-                        time: `${h}h ${m}m`
-                    });
-                } else {
-                    canvasWrapper.classList.add('is-guest');
-                }
-            }
-
-            function drawCanvas(pct) {
-                const canvas = document.getElementById('batteryCanvas');
-                const ctx = canvas.getContext('2d');
-                ctx.clearRect(0,0,100,100);
-                ctx.beginPath(); ctx.arc(50,50,40,0,2*Math.PI); ctx.strokeStyle="rgba(255,255,255,0.1)"; ctx.lineWidth=10; ctx.stroke();
-                let start = -0.5*Math.PI, end = start + ((pct/100)*2*Math.PI);
-                let col = pct<20?'#ff7675':(pct<50?'#ffeaa7':'#00b894');
-                ctx.beginPath(); ctx.arc(50,50,40,start,end); ctx.strokeStyle=col; ctx.lineWidth=10; ctx.lineCap='round'; ctx.stroke();
-                ctx.fillStyle="#fff"; ctx.font="bold 16px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText(pct+"%",50,50);
+        
             }
 
             // -- DEMO DA SOSTITUIRE CON DB
             initCarSelect();
 
         </script>
+        
     </body>
 </html>

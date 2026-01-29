@@ -38,7 +38,6 @@ $is_admin = ($user_role === 'admin');
         <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="../css/style.css">
-        <script src="../js/home_js.js"></script>
     </head>
     <body>
         <header class="site-header">

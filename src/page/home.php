@@ -146,7 +146,7 @@ $is_admin = ($user_role === 'admin');
                         <li><a href="map.php">Charge Map</a></li>
                         <li><a href="autosalone.html">Autosalone</a></li>
                         <?php if ($can_access_plus): ?>
-                            <li><a href="community.html">Community Forum</a></li>
+                            <li><a href="community.html">Community+</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>

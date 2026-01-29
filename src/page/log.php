@@ -161,7 +161,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                     <i class="fa-regular fa-circle-xmark"></i>  Torna alla Home
                 </a>
             </div>
-
         </div>
     </div>
 </section>

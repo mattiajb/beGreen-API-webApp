@@ -151,15 +151,15 @@ $is_admin = ($user_role === 'admin');
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="../js/map.js"></script>
 
-            <footer>
+        <footer>
             <div class="footer-container">
                 <div class="footer-col">
                     <h3><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" style="height: 40px; width: auto; margin-bottom: -12px;"> beGreen </h3>
                     <p style="margin-bottom: 1rem; font-size: 0.9rem; line-height: 1.6;"> Il punto di riferimento per la mobilità elettrica. </p>
                     <div class="social-icons">
-                        <a href="#" class="social-btn"><i class="fa-brands fa-github"></i></a>
-                        <a href="#" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
-                        <a href="#" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="https://github.com/mattiajb/beGreen-API-webApp.git" class="social-btn"><i class="fa-brands fa-github"></i></a>
+                        <a href="https://www.linkedin.com/top-content/" class="social-btn"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a href="https://www.unisa.it/" class="social-btn"><i class="fa-solid fa-building-columns"></i></a>
                     </div>
                 </div>
                 <div class="footer-col">

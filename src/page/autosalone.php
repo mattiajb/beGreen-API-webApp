@@ -29,25 +29,23 @@ $is_admin = ($user_role === 'admin');
 <!DOCTYPE html>
 <html lang="it">
     <head>
-        <title>Home | beGreen</title>
+        <title>Autosalone | beGreen</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Web App progettata per rispondere alle sfide emergenti dell'energia rinnovabile nel settore delle auto elettriche">
-        <link rel="icon" type="image/png" href="../src_image/favicon/favicon-96x96.png" sizes="96x96" />
         <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
         <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
-        <link rel="stylesheet" href="../css/style.css">
+        <link rel="stylesheet" href="../css/style.css"> 
     </head>
     <body>
+        <!-- NAVBAR -->
         <header class="site-header">
             <nav class="navbar">
                 <a href="home.php" class="logo"><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
                 <ul class="nav-links">
-                    <li><a href="home.php" class="nav-item active">Home</a></li>
+                    <li><a href="home.php" class="nav-item">Home</a></li>
                     <li><a href="map.php" class="nav-item">Charge Map</a></li>
-                    <li><a href="autosalone.php" class="nav-item">Autosalone</a></li>
+                    <li><a href="autosalone.php" class="nav-item active">Autosalone</a></li>
 
                     <?php if ($can_access_plus): ?>
                         <li><a href="community.html" class="nav-plus"> Community+ </a></li>
@@ -78,55 +76,7 @@ $is_admin = ($user_role === 'admin');
             </nav>
         </header>
 
-        <main>
-            <section class="theme-section">
-            <div class="main-theme">
-                <div>
-                        <h1>Il futuro della mobilità è <span class="highlight">Green</span></h1>
-                    <p class="theme">
-                        Benvenuto in <strong>beGreen</strong>, la piattaforma definitiva per la gestione della tua auto elettrica. 
-                        Monitora i consumi, trova le colonnine di ricarica più vicine e unisciti a una community 
-                        di guidatori consapevoli. Il pianeta ti ringrazia, il tuo portafoglio anche.
-                    </p>
-                </div>
-            </div>
-            <div class="iframe-class">
-                <div class="relation-iframe">
-                    <iframe src="../external_file/19_routing.pdf" title="Relazione Tecnologie Web"><p>Relazione Tecnologie Web</p></iframe>
-                </div>
-            </div>
-            </section>
-
-            <section class="team-container">
-                <h2 class="team-title">beGreen <span class="highlight">Team</span></h2>
-                <div class="team-grid">
-                    <div class="team-card">
-                    <a href="https://github.com/mattiajb">
-                        <div class="avatar-glow">
-                            <img src="../src_image/images/beGreen_cyan.png" alt="Mattia Bavaro">
-                        </div>
-                        <h3>Mattia Gerardo Bavaro</h3>
-                    </a>
-                    </div>
-                    <div class="team-card">
-                    <a href="https://github.com/melem878">
-                        <div class="avatar-glow">
-                            <img src="../src_image/images/beGreen_cyan.png" alt="Mario Mele">
-                        </div>
-                        <h3>Mario Mele</h3>
-                    </a>
-                    </div>
-                    <div class="team-card">
-                    <a href="https://github.com/crivellini">
-                        <div class="avatar-glow">
-                            <img src="../src_image/images/beGreen_cyan.png" alt="Cosimo Rivellini">
-                        </div>
-                        <h3>Cosimo Rivellini</h3>
-                    </a>
-                    </div>
-                </div>
-            </section>
-        </main>
+        <!-- AUTOSALONE -->
 
         <footer>
             <div class="footer-container">

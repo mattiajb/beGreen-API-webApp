@@ -2,53 +2,98 @@
 session_start();
 require_once 'db.php';
 
-// 1. LOGICA DI ACCESSO E RUOLI (Sincronizzata con Home)
-$is_logged = false;
-$username = "Ospite";
-$user_role = "guest"; 
-$user_label = "Visitatore";
-
-if (isset($_SESSION['user_id'])) {
-    $is_logged = true;
-    $username = htmlspecialchars($_SESSION['username']); 
-    $user_role = $_SESSION['role']; 
-    
-    switch ($user_role) {
-        case 'admin':
-            $user_label = "Amministratore";
-            break;
-        case 'plus':
-            $user_label = "Utente Plus";
-            break;
-        default:
-            $user_label = "Utente Standard";
-            break;
-    }
-} else {
-    // Se non è loggato, non può stare qui
+// CONTROLLO ACCESSO
+if (!isset($_SESSION['user_id'])) {
     header("Location: log.php");
     exit();
 }
 
-// Variabili di supporto per la UI
-$email = $_SESSION['email'] ?? ($username . "@example.com");
+$user_id = $_SESSION['user_id'];
 $message = "";
 $error = "";
 
-// 2. LOGICA CAMBIO PASSWORD (Esempio)
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_password'])) {
-    // Qui andrebbe la logica reale con password_verify e UPDATE sul DB
-    $message = "Funzionalità cambio password pronta per il database!";
-}
+// 2. RECUPERO DATI UTENTE (SPOSTATO QUI IN ALTO)
+// È fondamentale recuperare la password hash PRIMA di provare a cambiarla
+$query_user = "SELECT username, email, role, password_hash FROM users WHERE id = $1";
+$result_user = pg_query_params($db, $query_user, array($user_id));
 
-// 3. LOGICA DIVENTA PLUS
-if (isset($_POST['go_plus']) && $user_role !== 'plus' && $user_role !== 'admin') {
-    // In un caso reale: UPDATE users SET role='plus' WHERE id=...
-    $_SESSION['role'] = 'plus';
-    header("Location: profile.php?success=1");
+if ($user_data = pg_fetch_assoc($result_user)) {
+    $email_reale = $user_data['email'];
+    $username_reale = $user_data['username'];
+    $role_reale = $user_data['role']; 
+    $current_hash_db = $user_data['password_hash']; // Ora la variabile è definita!
+} else {
+    // Se l'utente non esiste nel DB
+    session_destroy();
+    header("Location: log.php");
     exit();
 }
-if (isset($_GET['success'])) $message = "Complimenti! Ora sei un Utente Plus 🌿";
+
+// 3. LOGICA CAMBIO PASSWORD
+if (isset($_POST['update_password'])) {
+    $current_pass_input = $_POST['current_pass'];
+    $new_pass_input = $_POST['new_pass'];
+
+    // Ora $current_hash_db esiste ed è popolata
+    if (!password_verify($current_pass_input, $current_hash_db)) {
+        $error = "La password attuale non è corretta.";
+    } 
+    elseif (strlen($new_pass_input) < 6) {
+        $error = "La nuova password deve avere almeno 6 caratteri.";
+    }
+    else {
+        // Aggiornamento password
+        $new_hash = password_hash($new_pass_input, PASSWORD_DEFAULT);
+        
+        $query_update_pass = "UPDATE users SET password_hash = $1 WHERE id = $2";
+        $result_update = pg_query_params($db, $query_update_pass, array($new_hash, $user_id));
+
+        if ($result_update) {
+            $message = "Password aggiornata con successo!";
+            $current_hash_db = $new_hash; // Aggiorniamo la variabile locale per evitare errori
+        } else {
+            $error = "Errore durante l'aggiornamento della password.";
+        }
+    }
+}
+
+// "DIVENTA PLUS" (Aggiornamento nel Database)
+if (isset($_POST['go_plus'])) {
+    // Aggiornanemdo del ruolo nel DB
+    $query_plus = "UPDATE users SET role = 'plus' WHERE id = $1";
+    $result_plus = pg_query_params($db, $query_plus, array($user_id));
+
+    if ($result_plus) {
+        $_SESSION['role'] = 'plus';
+        header("Location: profile.php?success=1");
+        exit();
+    } else {
+        $error = "Errore durante l'aggiornamento del profilo.";
+    }
+}
+
+// GESTIONE ETICHETTE E STILI IN BASE AL RUOLO
+$user_label = "STANDARD";
+$badge_style = ""; 
+
+switch ($role_reale) {
+    case 'admin':
+        $user_label = "ADMIN";
+        $badge_style = "color: #ff2d55; border-color: #ff2d55; font-weight: bold;";
+        break;
+    case 'plus':
+        $user_label = "UTENTE PLUS+";
+        $badge_style = "color: #ffd700; border-color: #ffd700; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.1);";
+        break;
+    default: // user standard
+        $user_label = "STANDARD";
+        $badge_style = "color: var(--text-muted); border-color: rgba(255,255,255,0.2);";
+        break;
+}
+
+if (isset($_GET['success'])) {
+    $message = "Complimenti! Ora sei un <b style='color:#ffd700;'>Utente Plus+</b>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -92,42 +137,52 @@ if (isset($_GET['success'])) $message = "Complimenti! Ora sei un Utente Plus �
         <div class="user-info-section">
             <div class="form-group">
                 <label>Username</label>
-                <input type="text" value="<?php echo $username; ?>" readonly>
+                <input type="text" value="<?php echo htmlspecialchars($username_reale); ?>" readonly>
             </div>
             
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" value="<?php echo htmlspecialchars($email); ?>" readonly>
+                <input type="email" value="<?php echo htmlspecialchars($email_reale); ?>" readonly>
             </div>
             
             <div class="form-group">
                 <label>Tipologia Utente</label>
-                <input type="text" value="<?php echo $user_label; ?>" readonly 
-                       class="<?php echo ($user_role === 'plus') ? 'status-plus' : ''; ?>">
+                <input type="text" value="<?php echo $user_label; ?>" readonly style="<?php echo $badge_style; ?>">
             </div>
         </div>
 
         <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
 
-        <form method="POST">
-            <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 15px;">Cambia Password</h3>
-            <div class="form-group">
-                <input type="password" name="current_pass" placeholder="Password attuale" required>
-            </div>
-            <div class="form-group">
-                <input type="password" name="new_pass" placeholder="Nuova password" required>
-            </div>
-            <button type="submit" name="update_password" class="auth-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">
-                Aggiorna Password
-            </button>
-        </form>
-
-        <?php if ($user_role === 'user'): ?>
-        <div style="margin-top: 30px; padding: 20px; border: 1px dashed #ffd700; border-radius: 12px; text-align: center;">
-            <p style="font-size: 0.8rem; color: #ffd700; margin-bottom: 10px;">Ottieni l'accesso alla Community+</p>
+        <?php if ($role_reale !== 'admin'): ?>
             <form method="POST">
-                <button type="submit" name="go_plus" class="auth-btn" style="background: linear-gradient(135deg, #ffd700, #b8860b); color: #020617;">
-                    <i class="fa-solid fa-crown"></i> Diventa Utente+
+                <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 15px;">Cambia Password</h3>
+                <div class="form-group">
+                    <input type="password" name="current_pass" placeholder="Password attuale" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="new_pass" placeholder="Nuova password" required>
+                </div>
+                <button type="submit" name="update_password" class="auth-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">
+                    Aggiorna Password
+                </button>
+            </form>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+        <?php else: ?>
+            <div style="padding: 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+                <i class="fa-solid fa-lock"></i> Le impostazioni di sicurezza dell'Admin sono gestite internamente.
+            </div>
+        <?php endif; ?>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
+        <?php if ($role_reale === 'user'): ?>
+        <div style="margin-top: 30px; padding: 20px; border: 1px dashed #ffd700; border-radius: 12px; text-align: center; background: rgba(255, 215, 0, 0.05);">
+            <p style="font-size: 0.9rem; color: #ffd700; margin-bottom: 15px;">
+                Sblocca funzionalità esclusive
+            </p>
+            <form method="POST">
+                <button type="submit" name="go_plus" class="plus-btn">
+                    <i class="fa-solid fa-crown"></i> Diventa Utente Plus+
                 </button>
             </form>
         </div>

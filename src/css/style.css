@@ -134,7 +134,7 @@ nav {
 /* Link Admin specifico */
 .nav-admin {
     color: var(--accent);
-    display: none;
+    display: flex;
     font-weight: bold;
 }
 
@@ -833,4 +833,9 @@ textarea {
 .plus-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 0 20px rgba(242, 255, 0, 0.6);
+}
+
+.plus-text {
+    color: var(--gold); 
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }

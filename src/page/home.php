@@ -64,7 +64,7 @@ $is_admin = ($user_role === 'admin');
                     <?php endif; ?>
 
                     <?php if ($is_admin): ?>
-                        <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
+                        <li><a href="admin.php" class="nav-admin"> Admin Panel</a></li>
                     <?php endif; ?>
                 </ul>
 

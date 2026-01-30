@@ -1,82 +1,57 @@
--- Pulizia preliminare (opzionale, se vuoi ricreare il DB da zero)
-DROP TABLE IF EXISTS community_posts;
-DROP TABLE IF EXISTS vehicles;
-DROP TABLE IF EXISTS charging_stations;
-DROP TABLE IF EXISTS users;
-DROP TYPE IF EXISTS user_role;
+-- 1. Setup Database e Utente (da eseguire se non esistono)
+-- CREATE USER www WITH PASSWORD 'www';
+-- CREATE DATABASE "TW";
+-- GRANT ALL PRIVILEGES ON DATABASE "TW" TO www;
 
--- 1. Creazione del tipo enumerato per i Ruoli
--- Questo garantisce che nel DB finiscano solo questi valori specifici
+-- \c TW  <-- Se usi psql, decommenta per connetterti al DB
+
+-- 2. Pulizia (Reset)
+DROP TABLE IF EXISTS vehicles CASCADE;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TYPE IF EXISTS user_role CASCADE;
+
+-- 3. Creazione Tipo Ruolo
 CREATE TYPE user_role AS ENUM ('user', 'plus', 'admin');
 
--- 2. Tabella Utenti
+-- 4. Tabella Utenti
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL, -- Qui andrebbe l'hash BCRYPT
-    role user_role DEFAULT 'user',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    password_hash VARCHAR(255) NOT NULL,
+    role user_role DEFAULT 'user'
 );
 
--- 3. Tabella Colonnine di Ricarica (per map.php)
-CREATE TABLE charging_stations (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(100),
-    latitude DECIMAL(9,6),
-    longitude DECIMAL(9,6),
-    status VARCHAR(20) DEFAULT 'active', -- active, maintenance, busy
-    power_kw INT,
-    address VARCHAR(255)
-);
-
--- 4. Tabella Veicoli
+-- 5. Tabella Veicoli
 CREATE TABLE vehicles (
     id SERIAL PRIMARY KEY,
     brand VARCHAR(50) NOT NULL,
     model VARCHAR(100) NOT NULL,
-    battery_capacity NUMERIC(5, 2) NOT NULL, -- IMPORTANTE: deve chiamarsi così
+    battery_capacity NUMERIC(5, 2) NOT NULL, 
     max_charge_power NUMERIC(5, 2) NOT NULL
 );
 
--- 5. Tabella Community (per community.html - accessibile solo a Plus/Admin)
-CREATE TABLE community_posts (
-    id SERIAL PRIMARY KEY,
-    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-    title VARCHAR(100),
-    content TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- 6. Gestione Permessi Fondamentale per l'utente 'www'
+ALTER TABLE users OWNER TO www;
+ALTER TABLE vehicles OWNER TO www;
 
--- --------------------------------------------------------
--- POPOLAMENTO DATI (Seed)
--- --------------------------------------------------------
+-- Concede permessi sullo schema public
+GRANT USAGE ON SCHEMA public TO www;
+GRANT CREATE ON SCHEMA public TO www;
 
--- Inserimento Utenti
--- NOTA: Le password qui sono testo semplice per l'esempio. 
--- In produzione usa password_hash('tua_pass', PASSWORD_DEFAULT) in PHP.
-INSERT INTO users (username, email, password_hash, role) VALUES
-('admin_begreen', 'admin@begreen.it', '$2y$10$Esempi0HashPswAdmin...', 'admin'),
-('elon_plus', 'elon@tesla.com', '$2y$10$Esempi0HashPswPlus...', 'plus'),
-('mario_rossi', 'mario@email.it', '$2y$10$Esempi0HashPswUser1...', 'user'),
-('luigi_verdi', 'luigi@email.it', '$2y$10$Esempi0HashPswUser2...', 'user');
+-- Concede permessi su TUTTE le tabelle attuali
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO www;
 
--- Inserimento Colonnine (Coordinate zona Fisciano/Salerno per esempio)
-INSERT INTO charging_stations (name, latitude, longitude, status, power_kw, address) VALUES
-('Unisa Campus Nord', 40.773560, 14.787940, 'active', 22, 'Via Giovanni Paolo II, Fisciano'),
-('Piazza della Concordia', 40.676300, 14.765600, 'busy', 50, 'Piazza della Concordia, Salerno'),
-('Ikea Baronissi Fast Charge', 40.743200, 14.772100, 'active', 150, 'Via S. Allende, Baronissi'),
-('Stazione Manutenzione', 40.700000, 14.750000, 'maintenance', 11, 'Via dei Guasti, Salerno');
+-- *** IMPORTANTE: Concede permessi sulle SEQUENZE (per gli ID auto-increment) ***
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO www;
 
--- Inserimento Veicoli
+-- Assicura che le future tabelle/sequenze ereditino i permessi
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO www;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO www;
+
+-- 7. Seed Dati (Veicoli)
 INSERT INTO vehicles (brand, model, battery_capacity, max_charge_power) VALUES 
 ('Tesla', 'Model 3 Standard', 57.5, 170.0),
 ('Fiat', '500e', 42.0, 85.0),
 ('Volkswagen', 'ID.3 Pro', 58.0, 120.0),
 ('Hyundai', 'Kona Electric', 64.0, 77.0);
-
--- Inserimento Post Community (Visibili solo a Plus/Admin)
-INSERT INTO community_posts (user_id, title, content) VALUES
-(2, 'Consigli per viaggi lunghi', 'Ho appena fatto Salerno-Milano con due sole soste. Ecco la mia strategia...'),
-(1, 'Manutenzione colonnina Unisa', 'Avviso che la colonnina Nord sarà in manutenzione domani mattina.'),
-(2, 'Batterie allo stato solido?', 'Cosa ne pensate delle nuove news sulla tecnologia solid-state?');

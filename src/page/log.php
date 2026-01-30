@@ -1,109 +1,114 @@
 <?php
-/* -------------------------------------------------------------------------- */
-/* LATO SERVER                                  */
-/* -------------------------------------------------------------------------- */
+// 1. Avvio Sessione e Inclusione DB
 session_start();
-require_once 'db.php';
+require_once 'db.php'; 
 
-// Variabili per messaggi e dati Sticky
-$error_msg = "";
-$success_msg = "";
-$sticky_login_user = "";
-$sticky_reg_user = "";
-$sticky_reg_email = "";
+// Debug: Se $db non esiste, blocca tutto
+if (!isset($db) || !$db) {
+    die("Errore: Connessione al database fallita.");
+}
 
-// Default: mostriamo il login. Se però c'è un errore in registrazione, cambieremo questo valore.
-$auth_mode = 'login'; 
+// Se l'utente è già loggato, via alla home
+if (isset($_SESSION['user_id']) || isset($_SESSION['username'])) {
+    header("Location: home.php");
+    exit;
+}
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// 2. Inizializzazione Variabili
+$error_msg = '';
+$success_msg = '';
+$auth_mode = 'login'; // Default view
+$sticky_login_user = '';
+$sticky_reg_user = '';
+$sticky_reg_email = '';
 
-    /* ==============================
-       LOGICA DI LOGIN
-       ============================== */
-    if (isset($_POST['action']) && $_POST['action'] === 'login') {
-        $auth_mode = 'login'; // Restiamo sul login
+// 3. Gestione del Form
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    
+    $action = $_POST['action'] ?? '';
+
+    // --- REGISTRAZIONE ---
+    if ($action === 'register') {
+        $auth_mode = 'register';
         
-        $login_user = trim($_POST['login-user'] ?? '');
-        $login_pass = $_POST['login-pass'] ?? '';
+        $username = trim($_POST['reg-user']);
+        $email = trim($_POST['reg-email']);
+        $password = $_POST['reg-pass'];
+        $password_conf = $_POST['reg-pass-conf'];
 
-        // Sticky Login
-        $sticky_login_user = htmlspecialchars($login_user);
+        // Mantieni i valori nei campi in caso di errore
+        $sticky_reg_user = htmlspecialchars($username);
+        $sticky_reg_email = htmlspecialchars($email);
 
-        if (!empty($login_user) && !empty($login_pass)) {
-            $query = "SELECT id, username, password_hash, role FROM users WHERE username = $1";
-            $result = pg_query_params($db, $query, array($login_user));
-
-            if ($result && pg_num_rows($result) > 0) {
-                $user = pg_fetch_assoc($result);
-                if (password_verify($login_pass, $user['password_hash'])) {
-                    session_regenerate_id(true);
-                    $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['username'] = $user['username'];
-                    $_SESSION['role'] = $user['role'];
-                    header("Location: home.php");
-                    exit;
-                } else {
-                    $error_msg = "Password errata.";
-                }
-            } else {
-                $error_msg = "Utente non trovato.";
-            }
+        // Validazione Input
+        if (empty($username) || empty($email) || empty($password)) {
+            $error_msg = "Tutti i campi sono obbligatori.";
+        } elseif ($password !== $password_conf) {
+            $error_msg = "Le password non coincidono.";
+        } elseif (strlen($password) < 6) {
+            $error_msg = "La password deve essere di almeno 6 caratteri.";
         } else {
-            $error_msg = "Inserisci username e password.";
+            // Hashing della password
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+
+            // Query Parametrica per Inserimento
+            $query = "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)";
+            
+            // Usiamo @ per sopprimere il warning PHP in caso di duplicato (gestiamo noi l'errore)
+            $result = @pg_query_params($db, $query, [$username, $email, $password_hash]);
+
+            if ($result) {
+                // Successo
+                $auth_mode = 'login'; 
+                $sticky_login_user = $username; // Precompila il login
+                $success_msg = "Registrazione completata! Ora puoi accedere.";
+                // Reset dei campi di registrazione
+                $sticky_reg_user = '';
+                $sticky_reg_email = '';
+            } else {
+                // Fallimento: Controlliamo se è un errore di duplicato
+                $pg_err = pg_last_error($db);
+                if (strpos($pg_err, 'unique constraint') !== false || strpos($pg_err, 'duplicate key') !== false) {
+                    $error_msg = "Errore: Username o Email già esistenti.";
+                } else {
+                    $error_msg = "Errore generico nel database. Riprova più tardi.";
+                }
+            }
         }
     }
 
-    /* ==============================
-       LOGICA DI REGISTRAZIONE
-       ============================== */
-    if (isset($_POST['action']) && $_POST['action'] === 'register') {
+    // --- LOGIN ---
+    elseif ($action === 'login') {
+        $auth_mode = 'login';
         
-        // IMPORTANTE: Se siamo qui, l'utente ha provato a registrarsi.
-        // Impostiamo la modalità su 'register' così se c'è un errore il form rimane aperto.
-        $auth_mode = 'register'; 
+        $username = trim($_POST['login-user']);
+        $password = $_POST['login-pass'];
+        
+        $sticky_login_user = htmlspecialchars($username);
 
-        $reg_user = trim($_POST['reg-user'] ?? '');
-        $reg_email = trim($_POST['reg-email'] ?? '');
-        $reg_pass = $_POST['reg-pass'] ?? '';
-        $reg_pass_conf = $_POST['reg-pass-conf'] ?? '';
-
-        // Sticky Registration: Salviamo i dati per ristamparli
-        $sticky_reg_user = htmlspecialchars($reg_user);
-        $sticky_reg_email = htmlspecialchars($reg_email);
-
-        // Validazione
-        if (strlen($reg_user) < 3) {
-            $error_msg = "L'username deve avere almeno 3 caratteri.";
-        } elseif (!filter_var($reg_email, FILTER_VALIDATE_EMAIL)) {
-            $error_msg = "Email non valida.";
-        } elseif (strlen($reg_pass) < 6) {
-            $error_msg = "La password deve avere almeno 6 caratteri.";
-        } elseif ($reg_pass !== $reg_pass_conf) {
-            $error_msg = "Le password non coincidono.";
+        if (empty($username) || empty($password)) {
+            $error_msg = "Inserisci username e password.";
         } else {
-            // Controllo duplicati
-            $check_query = "SELECT id FROM users WHERE username = $1 OR email = $2";
-            $check_result = pg_query_params($db, $check_query, array($reg_user, $reg_email));
+            // Query diretta con pg_query_params (più semplice e sicura di prepare/execute per query singole)
+            $query = "SELECT id, username, password_hash, role FROM users WHERE username = $1";
+            $result = pg_query_params($db, $query, array($username));
+            
+            if ($result) {
+                $user_row = pg_fetch_assoc($result);
 
-            if (pg_num_rows($check_result) > 0) {
-                $error_msg = "Username o Email già esistenti.";
-            } else {
-                // Inserimento
-                $hashed_password = password_hash($reg_pass, PASSWORD_DEFAULT);
-                $insert_query = "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, role";
-                $insert_result = pg_query_params($db, $insert_query, array($reg_user, $reg_email, $hashed_password));
+                if ($user_row && password_verify($password, $user_row['password_hash'])) {
+                    // Login corretto: Salva sessione
+                    $_SESSION['user_id'] = $user_row['id'];
+                    $_SESSION['username'] = $user_row['username'];
+                    $_SESSION['role'] = $user_row['role'];
 
-                if ($insert_result) {
-                    $new_user = pg_fetch_assoc($insert_result);
-                    session_regenerate_id(true);
-                    $_SESSION['user_id'] = $new_user['id'];
-                    $_SESSION['username'] = $reg_user;
-                    $_SESSION['role'] = $new_user['role'];
                     header("Location: home.php");
                     exit;
                 } else {
-                    $error_msg = "Errore DB: " . pg_last_error($db);
+                    $error_msg = "Credenziali non valide.";
                 }
+            } else {
+                $error_msg = "Errore di connessione al sistema.";
             }
         }
     }

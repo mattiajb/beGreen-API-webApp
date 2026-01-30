@@ -1,24 +1,34 @@
 <?php
 session_start();
 require_once 'db.php';
+
 $is_logged = false;
 $username = "Ospite";
-$user_role = "guest"; // Ruoli possibili: guest, user, plus, admin
+$user_role = "guest"; 
 $user_label = "Visitatore";
+
+// Variabili per lo stile dinamico
+$badge_class = ""; 
 
 if (isset($_SESSION['user_id'])) {
     $is_logged = true;
-    $username = htmlspecialchars($_SESSION['username']); // Protezione XSS
+    $username = htmlspecialchars($_SESSION['username']); 
     $user_role = $_SESSION['role']; 
+    
     switch ($user_role) {
         case 'admin':
-            $user_label = "Amministratore";
+            $user_label = "ADMIN";
+            $badge_class = "type-admin"; // Classe CSS per Admin
             break;
+            
         case 'plus':
-            $user_label = "Utente Plus";
-            break;
-        default:
-            $user_label = "Utente Standard";
+            $user_label = "UTENTE PLUS+";
+            $badge_class = "type-plus"; // Classe CSS per Plus
+        break;
+            
+        default: // User standard
+            $user_label = "STANDARD";
+            $badge_class = "type-standard"; // Classe CSS per Standard
             break;
     }
 }
@@ -65,12 +75,18 @@ $is_admin = ($user_role === 'admin');
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="profile.php" class="user-info"> 
-                                <span class="user-name"><?php echo $username; ?></span>
-                                <span class="user-type"><?php echo $user_label; ?></span>
+                            <a href="profile.php" class="user-info">
+                                <span class="user-name">
+                                    <i class="fa-solid fa-circle-user"></i> 
+                                    <?php echo $username; ?>
+                                </span>
+                                
+                                <span class="user-type <?php echo $badge_class; ?>">
+                                    <?php echo $user_label; ?>
+                                </span>
                             </a>
-                            <a href="logout.php" class="logout-btn-link">
-                                <button class="logout-btn"> Esci </button>
+                            <a href="logout.php" class="logout-btn">
+                                Esci
                             </a>
                         </div>
                     <?php endif; ?>

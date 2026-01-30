@@ -132,7 +132,7 @@ $is_admin = ($user_role === 'admin');
                     <li><a href="autosalone.php" class="nav-item">Autosalone</a></li>
 
                     <?php if ($can_access_plus): ?>
-                        <li><a href="community.php" class="nav-plus"> Community+ </a></li>
+                        <li><a href="community.php" class="nav-plus active"> Community+ </a></li>
                     <?php endif; ?>
 
                     <?php if ($is_admin): ?>

@@ -65,7 +65,6 @@ $vehicles = pg_fetch_all($result);
 if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
 ?>
 
-
 <!DOCTYPE html>
 <html lang="it">
     <head>
@@ -79,320 +78,6 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="../css/style.css">
-        <style>
-            /* Layout Generale a Griglia: 2/3 Catalogo, 1/3 Carrello */
-.autosalone-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    padding: 20px;
-    max-width: 1400px;
-    margin: 0 auto;
-    min-height: 80vh;
-}
-
-/* --- SEZIONE SINISTRA: CATALOGO (2/3) --- */
-.catalog-section {
-    flex: 3; /* Prende 2 parti dello spazio */
-    min-width: 600px;
-}
-
-/* Barra Filtri */
-.filter-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-    background: #1e1e1e;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-}
-
-.filter-btn {
-    text-decoration: none;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: 1px solid #00E5FF;
-    transition: all 0.3s ease;
-    font-weight: bold;
-}
-
-.filter-btn:hover, .filter-btn.active {
-    background: #00E5FF;
-    color: #000;
-    box-shadow: 0 0 10px #00E5FF;
-}
-
-/* Griglia delle Auto */
-.cars-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.car-card {
-    background: #2a2a2a;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
-    cursor: grab;
-    border: 1px solid #444;
-}
-
-.car-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 229, 255, 0.2);
-    border-color: #00E5FF;
-}
-
-.car-card:active {
-    cursor: grabbing;
-}
-
-.car-img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-}
-
-.car-info {
-    padding: 15px;
-}
-
-.car-info h3 {
-    margin: 0 0 5px 0;
-    color: #fff;
-    font-size: 1.2rem;
-}
-
-.car-info p {
-    color: #ccc;
-    font-size: 0.9rem;
-    margin: 5px 0;
-}
-
-.car-price {
-    color: #00E5FF;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-top: 10px;
-}
-
-/* --- SEZIONE DESTRA: CARRELLO (1/3) --- */
-.cart-section {
-    flex: 1; /* Prende 1 parte dello spazio */
-    min-width: 300px;
-    position: relative;
-}
-
-.sticky-cart {
-    background: #1e1e1e;
-    border: 2px dashed #444;
-    border-radius: 12px;
-    padding: 20px;
-    position: sticky;
-    top: 100px; /* Rimane fisso mentre scrolli */
-    min-height: 400px;
-    display: flex;
-    flex-direction: column;
-    transition: border-color 0.3s, background-color 0.3s;
-}
-
-.sticky-cart.drag-over {
-    border-color: #00E5FF;
-    background-color: rgba(0, 229, 255, 0.05);
-}
-
-.cart-header h2 {
-    color: #fff;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
-    margin-top: 0;
-}
-
-.cart-items {
-    flex-grow: 1;
-    list-style: none;
-    padding: 0;
-    margin: 20px 0;
-    overflow-y: auto;
-    max-height: 500px;
-}
-
-.cart-item {
-    background: #333;
-    margin-bottom: 10px;
-    padding: 10px;
-    border-radius: 8px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    animation: fadeIn 0.3s ease;
-}
-
-.cart-item img {
-    width: 50px;
-    height: 35px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-right: 10px;
-}
-
-.cart-item-details {
-    flex-grow: 1;
-    color: #fff;
-    font-size: 0.9rem;
-}
-
-.remove-btn {
-    background: transparent;
-    border: none;
-    color: #ff4444;
-    cursor: pointer;
-    font-size: 1.2rem;
-}
-
-.remove-btn:hover {
-    color: #ff0000;
-}
-
-.cart-footer {
-    border-top: 1px solid #444;
-    padding-top: 15px;
-    text-align: center;
-}
-
-.cart-total {
-    color: #fff;
-    font-size: 1.2rem;
-    margin-bottom: 15px;
-    display: block;
-}
-
-.action-btn {
-    display: inline-block;
-    width: 100%;
-    padding: 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background 0.3s;
-    text-decoration: none;
-}
-
-.btn-login {
-    background: #444;
-    color: #fff;
-}
-.btn-login:hover { background: #555; }
-
-.btn-quote {
-    background: #00E5FF;
-    color: #000;
-}
-.btn-quote:hover { background: #00b8cc; }
-
-.empty-msg {
-    color: #777;
-    text-align: center;
-    margin-top: 50px;
-    font-style: italic;
-}
-
-/* --- MODAL / POPUP --- */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0,0,0,0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-    backdrop-filter: blur(5px);
-}
-
-.modal-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background: #1e1e1e;
-    padding: 30px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 500px;
-    box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
-    position: relative;
-    border: 1px solid #00E5FF;
-    color: #fff;
-}
-
-.close-modal {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 1.5rem;
-    color: #ccc;
-    cursor: pointer;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 5px;
-    color: #00E5FF;
-}
-
-.form-group input, .form-group textarea {
-    width: 100%;
-    padding: 10px;
-    background: #2a2a2a;
-    border: 1px solid #444;
-    color: #fff;
-    border-radius: 4px;
-}
-
-.form-group textarea {
-    resize: vertical;
-    min-height: 100px;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Responsive Mobile */
-@media (max-width: 900px) {
-    .autosalone-container {
-        flex-direction: column;
-    }
-    
-    .catalog-section, .cart-section {
-        min-width: 100%;
-        flex: auto;
-    }
-    
-    .sticky-cart {
-        position: static;
-        min-height: auto;
-    }
-}
-        </style>
     </head>
     <body>
         <header class="site-header">
@@ -456,65 +141,66 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
 
                 <!-- Griglia Auto -->
                 <div class="cars-grid">
-                    <?php if (count($vehicles) > 0): ?>
-                        <?php foreach ($vehicles as $car): ?>
-                            <?php 
-                                // Preparazione dati JSON per Drag & Drop
-                                $carData = json_encode([
-                                    'id' => $car['id'],
-                                    'brand' => $car['brand'],
-                                    'model' => $car['model'],
-                                    'price' => $car['price'],
-                                    'image' => $car['image_url']
-                                ]);
-                            ?>
-                            <div class="car-card" draggable="true" data-car='<?php echo htmlspecialchars($carData, ENT_QUOTES, 'UTF-8'); ?>'>
-                                <img src="<?php echo htmlspecialchars($car['image_url']); ?>" 
-                                     alt="<?php echo htmlspecialchars($car['model']); ?>" 
-                                     class="car-img"
-                                     onerror="this.src='https://placehold.co/600x400/1e1e1e/FFF?text=Auto+Elettrica'">
-                                <div class="car-info">
-                                    <h3><?php echo htmlspecialchars($car['brand'] . ' ' . $car['model']); ?></h3>
-                                    <p><i class="fa-solid fa-battery-full"></i> <?php echo $car['battery_capacity']; ?> kWh</p>
-                                    <p><i class="fa-solid fa-bolt"></i> <?php echo $car['max_charge_power']; ?> kW Max</p>
-                                    <div class="car-price">
-                                        € <?php echo number_format($car['price'], 2, ',', '.'); ?>
+                            <?php if (!empty($vehicles)): ?>
+                            <?php foreach ($vehicles as $car): ?>
+                                <div class="car-card" 
+                                    draggable="true" 
+                                    data-id="<?php echo $car['id']; ?>"
+                                    data-brand="<?php echo htmlspecialchars($car['brand']); ?>"
+                                    data-model="<?php echo htmlspecialchars($car['model']); ?>"
+                                    data-price="<?php echo $car['price']; ?>"
+                                    data-image="<?php echo htmlspecialchars($car['image_url']); ?>">
+                                    
+                                    <img src="<?php echo htmlspecialchars($car['image_url']); ?>" 
+                                        alt="<?php echo htmlspecialchars($car['model']); ?>" 
+                                        class="car-img"
+                                        onerror="this.src='https://placehold.co/600x400/1e1e1e/FFF?text=Auto+Elettrica'">
+                                    
+                                    <div class="car-info">
+                                        <h3><?php echo htmlspecialchars($car['brand'] . ' ' . $car['model']); ?></h3>
+                                        <p><i class="fa-solid fa-battery-full"></i> <?php echo $car['battery_capacity']; ?> kWh</p>
+                                        <p><i class="fa-solid fa-bolt"></i> <?php echo $car['max_charge_power']; ?> kW Max</p>
+                                        <div class="car-price">
+                                            € <?php echo number_format($car['price'], 2, ',', '.'); ?>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        <?php endforeach; ?>
-                    <?php else: ?>
-                        <p style="color: #fff;">Nessuna auto trovata in questa categoria.</p>
-                    <?php endif; ?>
-                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p style="color: #fff;">Nessuna auto trovata in questa categoria.</p>
+                        <?php endif; ?>
+                    </div>
             </section>
 
             <!-- COLONNA DESTRA: CARRELLO (1/3) -->
             <section class="cart-section">
-                <div class="sticky-cart" id="cart-zone">
+                <div class="sticky-cart" id="cart-zone" data-logged="<?php echo $is_logged ? 'true' : 'false'; ?>">
+                    
                     <div class="cart-header">
                         <h2><i class="fa-solid fa-cart-shopping"></i> Preventivo</h2>
-                        <p style="color:#aaa; font-size:0.9rem;">Trascina qui le auto</p>
+                        <p style="color:#aaa; font-size:0.9rem;">
+                            <?php echo $is_logged ? 'Trascina qui le auto' : 'Accedi per creare un preventivo'; ?>
+                        </p>
                     </div>
 
                     <ul class="cart-items" id="cart-items-list">
-                        <!-- Qui vengono inseriti gli elementi via JS -->
                         <li id="empty-msg" class="empty-msg">Il carrello è vuoto</li>
                     </ul>
 
                     <div class="cart-footer">
-                        <span class="cart-total">Totale Stimato: <span id="total-price" class="highlight">€ 0,00</span></span>
+                        <span class="cart-total">Totale Stimato: <span id="total-price">€ 0,00</span></span>
                         
                         <?php if ($can_request_quote): ?>
                             <button id="btn-request-quote" class="action-btn btn-quote">
-                                Richiedi Preventivo
+                                Richiedi Informazioni
                             </button>
                         <?php else: ?>
-                            <a href="log.php" class="action-btn btn-login">
+                            <a href="log.php" class="action-btn btn-quote">
                                 Accedi per richiedere
                             </a>
                         <?php endif; ?>
                     </div>
+                    
                 </div>
             </section>
         </div>
@@ -522,7 +208,7 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
     <div class="modal-overlay" id="quote-modal">
         <div class="modal-content">
             <span class="close-modal">&times;</span>
-            <h2>Richiesta Preventivo</h2>
+            <h2>Contattaci</h2>
             <p style="margin-bottom:20px; color:#ccc;">Compila il modulo per ricevere una risposta ufficiale via email.</p>
             
             <form id="quote-form">

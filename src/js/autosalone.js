@@ -17,10 +17,11 @@ document.addEventListener('DOMContentLoaded', () => {
     cars.forEach(car => {
         car.addEventListener('dragstart', (e) => {
             // Raccogli i dati dall'attributo data-car
-            const carData = car.getAttribute('data-car');
-            e.dataTransfer.setData('application/json', carData);
-            e.dataTransfer.effectAllowed = 'copy';
-            car.style.opacity = '0.5'; // Feedback visivo
+            e.dataTransfer.setData('car-id', car.getAttribute('data-id'));
+            e.dataTransfer.setData('car-brand', car.getAttribute('data-brand'));
+            e.dataTransfer.setData('car-model', car.getAttribute('data-model'));
+            e.dataTransfer.setData('car-price', car.getAttribute('data-price'));
+            e.dataTransfer.setData('car-image', car.getAttribute('data-image'));
         });
 
         car.addEventListener('dragend', () => {
@@ -43,10 +44,27 @@ document.addEventListener('DOMContentLoaded', () => {
         cartZone.addEventListener('drop', (e) => {
             e.preventDefault();
             cartZone.classList.remove('drag-over');
-            
-            const data = e.dataTransfer.getData('application/json');
-            if (data) {
-                const carObj = JSON.parse(data);
+
+            // --- NUOVO CODICE: BLOCCO GUEST ---
+            // 1. Leggiamo se l'utente è loggato dall'HTML
+            const isLogged = cartZone.getAttribute('data-logged') === 'true';
+
+            // 2. Se NON è loggato, mostriamo avviso e fermiamo tutto
+            if (!isLogged) {
+                alert("Devi effettuare l'accesso per aggiungere auto al preventivo.");
+                return; // Questo "return" esce dalla funzione: l'auto non viene aggiunta!
+            }
+            // ----------------------------------
+
+            const carId = e.dataTransfer.getData('car-id');
+            if (carId) {
+                const carObj = {
+                    id: carId,
+                    brand: e.dataTransfer.getData('car-brand'),
+                    model: e.dataTransfer.getData('car-model'),
+                    price: e.dataTransfer.getData('car-price'),
+                    image: e.dataTransfer.getData('car-image')
+                };
                 addToCart(carObj);
             }
         });
@@ -138,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Qui si farebbe una chiamata AJAX al server per inviare la mail
             
             // Alert richiesto
-            alert(`Preventivo inviato con successo da ${email}! Ti contatteremo presto.`);
+            alert(`Richiesta inviata con successo da ${email}! Ti contatteremo al più presto.`);
             
             modal.classList.remove('active');
             quoteForm.reset();

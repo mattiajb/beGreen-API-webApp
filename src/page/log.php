@@ -136,7 +136,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <section id="auth-section">
     <div class="auth-wrapper">
-                    <?php if (!empty($error_msg)): ?>
+            <?php if (!empty($error_msg)): ?>
                 <div class="alert alert-error">
                     <i class="fa-solid fa-circle-exclamation"></i> <?php echo $error_msg; ?>
                 </div>

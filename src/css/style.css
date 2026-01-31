@@ -24,6 +24,24 @@
     box-sizing: border-box;
     font-family: 'Segoe UI', Inter, system-ui, sans-serif;
 }
+/* --- GLOBAL UI & SCROLLBAR --- */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg); 
+}
+
+::-webkit-scrollbar-thumb {
+    background: #334155; 
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary); 
+}
 
 body {
     background-color: var(--dark-bg);
@@ -901,4 +919,421 @@ textarea {
     color: #ff0040; /* Rosso acceso */
     text-shadow: 0 0 8px rgba(255, 0, 64, 0.5); /* Alone rosso */
     transform: translateY(-2px) translateX(2px); /* Si muove leggermente */
+}
+
+
+/* =========================================
+   STILE SPECIFICO PER AUTOSALONE (Solo Autosalone)
+   ========================================= */
+
+/* --- 1. LAYOUT PRINCIPALE --- */
+.autosalone-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    min-height: 80vh;
+    padding-bottom: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+/* --- 2. SEZIONE CATALOGO (Sinistra) --- */
+.catalog-section {
+    flex: 3;
+    min-width: 60%;
+}
+
+/* Barra dei Filtri (Pillola Fluttuante) */
+.filter-bar {
+    display: inline-flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    background: rgba(15, 23, 42, 0.6); /* Sfondo scuro semitrasparente */
+    padding: 6px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+
+.filter-btn {
+    padding: 10px 25px;
+    border-radius: 40px;
+    color: var(--text-muted);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    background: transparent;
+    text-decoration: none;
+    font-size: 0.9rem;
+    border: 1px solid transparent;
+}
+
+.filter-btn:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.filter-btn.active {
+    background: var(--primary); /* Ciano */
+    color: #000;
+    box-shadow: 0 0 15px rgba(0, 242, 255, 0.4);
+    font-weight: 800;
+}
+
+/* Griglia Auto */
+.cars-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+}
+
+/* --- 3. CARD AUTOMOBILI (Stile Vetro) --- */
+.car-card {
+    background: rgba(30, 41, 59, 0.4); /* Vetro scuro */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Rimbalzo elastico */
+    position: relative;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+}
+
+.car-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    border-color: var(--primary);
+    box-shadow: 0 15px 30px rgba(0, 242, 255, 0.15);
+    z-index: 2;
+}
+
+.car-card:active {
+    cursor: grabbing;
+    transform: scale(0.98);
+}
+
+.car-img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.5s ease;
+}
+
+.car-card:hover .car-img {
+    transform: scale(1.1); /* Zoom immagine all'hover */
+}
+
+.car-info {
+    padding: 1.5rem;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(to bottom, rgba(11, 17, 32, 0.8), rgba(11, 17, 32, 1));
+}
+
+.car-info h3 {
+    font-size: 1.25rem;
+    color: #fff;
+    margin-bottom: 0.8rem;
+    font-weight: 700;
+}
+
+.car-info p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.car-info p i {
+    color: var(--primary);
+    width: 20px;
+    text-align: center;
+}
+
+.car-price {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-align: right;
+    text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+}
+
+/* --- 4. SEZIONE CARRELLO / PREVENTIVO (Destra - HUD) --- */
+.cart-section {
+    flex: 1;
+    min-width: 320px;
+}
+
+.sticky-cart {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    position: sticky;
+    top: 100px; /* Si blocca durante lo scroll */
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+}
+
+/* Effetto quando trascini un'auto sopra */
+.sticky-cart.drag-over {
+    border: 2px dashed var(--primary);
+    background: rgba(0, 242, 255, 0.05);
+    transform: scale(1.02);
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+}
+
+.cart-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.cart-header h2 {
+    font-size: 1.5rem;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-items {
+    list-style: none;
+    flex-grow: 1;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    padding-right: 5px; /* Spazio per scrollbar */
+}
+
+/* Scrollbar specifica per la lista carrello */
+.cart-items::-webkit-scrollbar { width: 5px; }
+.cart-items::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+
+/* Elemento Singolo nel Carrello */
+.cart-item {
+    background: rgba(255, 255, 255, 0.03);
+    border-left: 3px solid var(--secondary);
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.cart-item:hover {
+    transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.cart-item img {
+    width: 50px;
+    height: 35px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.cart-item-details {
+    flex-grow: 1;
+    font-size: 0.9rem;
+    color: #eee;
+}
+
+.remove-btn {
+    background: transparent;
+    border: none;
+    color: #ff4444;
+    cursor: pointer;
+    font-size: 1.1rem;
+    opacity: 0.6;
+    transition: all 0.2s;
+    padding: 5px;
+}
+
+.remove-btn:hover {
+    opacity: 1;
+    transform: scale(1.2);
+    color: #ff0000;
+}
+
+.empty-msg {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 40px;
+    opacity: 0.7;
+}
+
+/* Footer del Carrello */
+.cart-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+}
+
+.cart-total {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.cart-total .highlight {
+    font-size: 1.4rem;
+    color: var(--primary);
+    font-weight: 800;
+}
+
+/* Pulsanti Azione */
+.action-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-align: center;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+    border: none;
+    font-size: 1rem;
+    display: block;
+    text-decoration: none;
+}
+
+.btn-quote {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 5px 20px rgba(0, 242, 255, 0.3);
+}
+
+.btn-quote:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 242, 255, 0.5);
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+}
+
+.btn-login {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn-login:hover {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+    border-color: #fff;
+}
+
+/* --- 5. MODAL / POPUP RICHIESTA --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: #1e293b;
+    padding: 35px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 30px rgba(0, 242, 255, 0.2);
+    position: relative;
+    color: #fff;
+}
+
+.close-modal {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 1.8rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.close-modal:hover {
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+/* Input Form Modale */
+.modal-content .form-group {
+    margin-bottom: 20px;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--primary);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal-content input, 
+.modal-content textarea {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.modal-content input:focus, 
+.modal-content textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(0, 242, 255, 0.2);
+}
+
+/* Animazione comparsa elementi lista */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.cart-item {
+    animation: fadeIn 0.3s ease forwards;
 }

@@ -1,38 +1,69 @@
 <?php
 session_start();
-// require_once 'db.php'; // Decommentare se il file database è presente
+require_once 'db.php';
+
 $is_logged = false;
 $username = "Ospite";
-$user_role = "guest"; // Ruoli possibili: guest, user, plus, admin
+$user_role = "guest"; 
 $user_label = "Visitatore";
+$badge_class = ""; 
 
 if (isset($_SESSION['user_id'])) {
     $is_logged = true;
-    $username = htmlspecialchars($_SESSION['username']); // Protezione XSS
+    $user_id = $_SESSION['user_id'];
+    $username = htmlspecialchars($_SESSION['username']); 
     $user_role = $_SESSION['role']; 
+    
     switch ($user_role) {
         case 'admin':
-            $user_label = "Amministratore";
+            $user_label = "ADMIN";
+            $badge_class = "type-admin"; // Classe CSS per Admin
             break;
+            
         case 'plus':
-            $user_label = "Utente Plus";
-            break;
-        default:
-            $user_label = "Utente Standard";
+            $user_label = "UTENTE PLUS+";
+            $badge_class = "type-plus"; // Classe CSS per Plus
+        break;
+            
+        default: // User standard
+            $user_label = "STANDARD";
+            $badge_class = "type-standard"; // Classe CSS per Standard
             break;
     }
 }
+
 $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 
-// Opzionale: Reindirizza se non si hanno i permessi (visto che è una feature Plus)
-// if (!$can_access_plus) { header("Location: home.php"); exit(); }
+    if (isset($_POST['submit_topic'])) {
+        $title = htmlspecialchars($_POST['topic-title']);
+        $category = $_POST['topic-category'];
+        $body = htmlspecialchars($_POST['topic-body']);
+
+        $query_insert = "INSERT INTO forum_db (user_id, title, category, body) VALUES ($1, $2, $3, $4)";
+        pg_query_params($db, $query_insert, array($user_id, $title, $category, $body));
+        
+        header("Location: community.php");
+        exit();
+    }
+
+    $query_posts = "SELECT t.*, u.username AS author 
+                    FROM forum_db t 
+                    JOIN users u ON t.user_id = u.id 
+                    ORDER BY t.created_at DESC";
+
+    $result_posts = pg_query($db, $query_posts);
+
+    // Se la query fallisce, stampa l'errore per capire cosa non va
+    if (!$result_posts) {
+        die("Errore nel database: " . pg_last_error($db));
+    }
 ?>
 
 <!DOCTYPE html>
 <html lang="it">
     <head>
-        <title>Community | beGreen</title>
+        <title>Community+ | beGreen</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="Community Forum per utenti beGreen">
@@ -40,7 +71,6 @@ $is_admin = ($user_role === 'admin');
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="../css/style.css">
         
-        <!-- Stili Inline aggiunti per la sezione Forum (adattati da GreenSpark) -->
         <style>
             :root {
                 --primary-cyan: #00f2ff;
@@ -49,7 +79,7 @@ $is_admin = ($user_role === 'admin');
             }
             
             main {
-                background-color: #0b1120; /* Sfondo scuro come GreenSpark */
+                background-color: #0b1120;
                 color: #f8fafc;
                 min-height: 80vh;
                 padding-top: 2rem;
@@ -127,7 +157,7 @@ $is_admin = ($user_role === 'admin');
             <nav class="navbar">
                 <a href="home.php" class="logo"><img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" class="logo-img"> beGreen </a>
                 <ul class="nav-links">
-                    <li><a href="home.php" class="nav-item active">Home</a></li>
+                    <li><a href="home.php" class="nav-item">Home</a></li>
                     <li><a href="map.php" class="nav-item">Charge Map</a></li>
                     <li><a href="autosalone.php" class="nav-item">Autosalone</a></li>
 
@@ -162,36 +192,30 @@ $is_admin = ($user_role === 'admin');
 
         <main>
             <section class="forum-container-custom">
-                <h2 style="text-align: center; color:  #00f2ff; margin-bottom: 2rem; padding-top: 1rem;">Community & Discussioni</h2>
+                <h2 class="plus-text">Community+</h2>
                 
-                <!-- Controls per Nuovo Topic -->
                 <div class="forum-controls">
                     <?php if ($is_logged): ?>
                         <button id="btn-new-topic" class="auth-btn-custom" onclick="toggleTopicForm()">
                             <i class="fa-solid fa-plus"></i> Inizia Nuova Discussione
                         </button>
-                    <?php else: ?>
-                        <p style="color: #94a3b8;">Accedi per partecipare alle discussioni.</p>
-                    <?php endif; ?>
-                </div>
+                    <?php endif; ?> </div>
 
-                <!-- Form Nuovo Topic (Sticky) -->
                 <div id="new-topic-form-container">
                     <div class="new-topic-header">
                         <h3 style="color:var(--primary-cyan)">Crea Nuova Discussione</h3>
-                        <p style="color:var(--text-muted); font-size:0.9rem;">Condividi la tua esperienza con la community.</p>
+                        <p style="color:var(--text-muted); font-size:0.9rem;">Condividi la tua esperienza con la <b style='color:#ffd700;'>Community+</b>.</p>
                     </div>
                     
-                    <form id="new-topic-form" onsubmit="event.preventDefault(); submitNewTopic();">
+                    <form id="new-topic-form" method="POST" action="community.php">
                         <div class="form-group">
                             <label>Titolo Discussione</label>
-                            <input type="text" id="topic-title" placeholder="Es: Problema ricarica Ionity..." required>
-                            <div class="error-msg" id="err-topic-title">Titolo troppo breve (min 5 caratteri)</div>
+                            <input type="text" name="topic-title" id="topic-title" placeholder="Es: Problema ricarica Ionity..." required minlength="5">
                         </div>
 
                         <div class="form-group">
                             <label>Categoria</label>
-                            <select id="topic-category">
+                            <select name="topic-category" id="topic-category">
                                 <option value="Generale">Generale</option>
                                 <option value="Ricarica">Ricarica & Colonnine</option>
                                 <option value="Veicoli">Veicoli & Recensioni</option>
@@ -201,49 +225,38 @@ $is_admin = ($user_role === 'admin');
 
                         <div class="form-group">
                             <label>Messaggio</label>
-                            <textarea id="topic-body" placeholder="Scrivi qui il tuo messaggio..." required rows="4"></textarea>
-                            <div class="error-msg" id="err-topic-body">Il messaggio deve essere di almeno 10 caratteri</div>
+                            <textarea name="topic-body" id="topic-body" placeholder="Scrivi qui il tuo messaggio..." required rows="4" minlength="10"></textarea>
                         </div>
 
                         <div style="display:flex; justify-content:flex-end; gap:10px;">
                             <button type="button" class="auth-btn-custom" style="background:transparent; border:1px solid white;" onclick="toggleTopicForm()">Annulla</button>
-                            <button type="submit" class="auth-btn-custom">Pubblica</button>
+                            <button type="submit" name="submit_topic" class="auth-btn-custom">Pubblica</button>
                         </div>
                     </form>
                 </div>
 
-                <!-- Griglia Forum: Qui simuliamo il rendering PHP -->
+                <!-- Visualizzazione dei post dal database -->
                 <div class="forum-grid" id="forum-container">
-                    <?php
-                        // Simulazione dati dal DB poi da togliere eventualmente
-                        $posts = [
-                            [
-                                'title' => "Opinioni su Tesla Model 3", 
-                                'author' => "MarioRossi", 
-                                'date' => "12/10/2025", 
-                                'category' => "Veicoli", 
-                                'body' => "Ciao a tutti, volevo condividere la mia esperienza..."
-                            ],
-                            [
-                                'title' => "Colonnine Enel X vs Be Charge", 
-                                'author' => "ElettroFan", 
-                                'date' => "15/10/2025", 
-                                'category' => "Ricarica", 
-                                'body' => "Quale abbonamento usate per risparmiare?"
-                            ]
-                        ];
+                    <?php while ($post = pg_fetch_assoc($result_posts)): ?>
+                        <?php $date_formatted = date("d/m/Y H:i", strtotime($post['created_at'])); ?>
+                        
+                        <div class="forum-card">
+                            <h3 style="color:#00f2ff; margin-bottom:5px;">
+                                <?php echo htmlspecialchars($post['title']); ?>
+                            </h3>
+                            <div style="font-size:0.85rem; color:#94a3b8; margin-bottom:10px;">
+                                <span style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">
+                                    <?php echo htmlspecialchars($post['category']); ?>
+                                </span>
+                                • di <?php echo htmlspecialchars($post['author']); ?> • <?php echo $date_formatted; ?>
+                            </div>
+                            <p><?php echo nl2br(htmlspecialchars($post['body'])); ?></p>
+                        </div>
+                    <?php endwhile; ?>
 
-                        foreach($posts as $post) {
-                            echo '<div class="forum-card">';
-                            echo '<h3 style="color:#00f2ff; margin-bottom:5px;">' . htmlspecialchars($post['title']) . '</h3>';
-                            echo '<div style="font-size:0.85rem; color:#94a3b8; margin-bottom:10px;">';
-                            echo '<span style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">' . htmlspecialchars($post['category']) . '</span>';
-                            echo ' • di ' . htmlspecialchars($post['author']) . ' • ' . $post['date'];
-                            echo '</div>';
-                            echo '<p>' . htmlspecialchars($post['body']) . '</p>';
-                            echo '</div>';
-                        }
-                    ?>
+                    <?php if (pg_num_rows($result_posts) == 0): ?>
+                        <p style="text-align:center; color:var(--text-muted);">Ancora nessuna discussione. Inizia tu!</p>
+                    <?php endif; ?>
                 </div>
             </section>
         </main>
@@ -284,45 +297,10 @@ $is_admin = ($user_role === 'admin');
             </div>
         </footer>
 
-        <!-- Script JS per la gestione interattiva (Simulazione) -->
         <script>
             function toggleTopicForm() {
                 const form = document.getElementById('new-topic-form-container');
                 form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
-            }
-
-            function submitNewTopic() {
-                const title = document.getElementById('topic-title').value;
-                const body = document.getElementById('topic-body').value;
-                
-                // Semplice validazione lato client
-                if(title.length < 5) {
-                    document.getElementById('err-topic-title').style.display = 'block';
-                    return;
-                }
-                if(body.length < 10) {
-                    document.getElementById('err-topic-body').style.display = 'block';
-                    return;
-                }
-
-                alert("Discussione pubblicata con successo!");
-                toggleTopicForm();
-                
-                // Aggiunta visiva al DOM (Simulazione senza refresh)
-                const container = document.getElementById('forum-container');
-                const div = document.createElement('div');
-                div.className = 'forum-card';
-                div.innerHTML = `
-                    <h3 style="color:#00f2ff; margin-bottom:5px;">${title}</h3>
-                    <div style="font-size:0.85rem; color:#94a3b8; margin-bottom:10px;">
-                        <span style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">Nuovo</span> • di <?php echo $username; ?> • Adesso
-                    </div>
-                    <p>${body}</p>
-                `;
-                container.prepend(div);
-                
-                // Reset form
-                document.getElementById('new-topic-form').reset();
             }
         </script>
     </body>

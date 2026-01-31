@@ -39,7 +39,7 @@ $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 
 // *** FIX ERRORE: Definizione esplicita della variabile mancante ***
-// La logica è: se sei loggato (qualsiasi ruolo), puoi richiedere il preventivo.
+// La logica è: se sei loggato (qualsiasi ruolo), puoi richiedere informazioni.
 $can_request_quote = $is_logged;
 
 // --- LOGICA AUTOSALONE (Database e Filtri) ---
@@ -177,9 +177,9 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
                 <div class="sticky-cart" id="cart-zone" data-logged="<?php echo $is_logged ? 'true' : 'false'; ?>">
                     
                     <div class="cart-header">
-                        <h2><i class="fa-solid fa-cart-shopping"></i> Preventivo</h2>
+                        <h2><i class="fa-solid fa-cart-shopping"></i> Carrello</h2>
                         <p style="color:#aaa; font-size:0.9rem;">
-                            <?php echo $is_logged ? 'Trascina qui le auto' : 'Accedi per creare un preventivo'; ?>
+                            <?php echo $is_logged ? 'Trascina qui le auto' : 'Accedi per richiedere informazioni'; ?>
                         </p>
                     </div>
 

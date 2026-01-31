@@ -1,19 +1,12 @@
--- 1. Setup Database e Utente (da eseguire se non esistono)
--- CREATE USER www WITH PASSWORD 'www';
--- CREATE DATABASE "TW";
--- GRANT ALL PRIVILEGES ON DATABASE "TW" TO www;
-
--- \c TW  <-- Se usi psql, decommenta per connetterti al DB
-
--- 2. Pulizia (Reset)
 DROP TABLE IF EXISTS vehicles CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TYPE IF EXISTS user_role CASCADE;
+DROP TYPE IF EXISTS forum_db;
 
--- 3. Creazione Tipo Ruolo
+-- Creazione Tipo Ruolo
 CREATE TYPE user_role AS ENUM ('user', 'plus', 'admin');
 
--- 4. Tabella Utenti
+-- Tabella Utenti
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -22,7 +15,7 @@ CREATE TABLE users (
     role user_role DEFAULT 'user'
 );
 
--- 5. Tabella Veicoli
+-- Tabella Veicoli
 CREATE TABLE vehicles (
     id SERIAL PRIMARY KEY,
     brand VARCHAR(50) NOT NULL,
@@ -34,30 +27,59 @@ CREATE TABLE vehicles (
     image_url VARCHAR(255) DEFAULT ''
 );
 
--- 6. Gestione Permessi Fondamentale per l'utente 'www'
+-- Tabella Community+
+CREATE TABLE forum_db (
+    id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    title VARCHAR(150) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    body TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_forum_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE
+);
+
+-- Gestione Permessi per l'utente 'www'
 ALTER TABLE users OWNER TO www;
 ALTER TABLE vehicles OWNER TO www;
+ALTER TABLE forum_db OWNER TO www;
 
--- Concede permessi sullo schema public
 GRANT USAGE ON SCHEMA public TO www;
 GRANT CREATE ON SCHEMA public TO www;
 
--- Concede permessi su TUTTE le tabelle attuali
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO www;
 
--- *** IMPORTANTE: Concede permessi sulle SEQUENZE (per gli ID auto-increment) ***
 GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO www;
 
--- Assicura che le future tabelle/sequenze ereditino i permessi
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO www;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO www;
 
-INSERT INTO users (username, email, password_hash, role) VALUES 
-('admin', 'admin@begreen.com', '$2y$10$8sA.N.uXk.B.v.O.g.l.e.O.u.r.p.a.s.s.w.o.r.d.V.a.l.i.d.H.a.s.h', 'admin'),
-('mario_plus', 'mario@email.com', '$2y$10$pL3/1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0.1.2.3.4.5', 'plus'),
-('luigi_user', 'luigi@email.com', '$2y$10$pL3/1.2.3.4.5.6.7.8.9.0.1.2.3.4.5.6.7.8.9.0.1.2.3.4.5', 'user');
+-- Inserimento Utenti default
+INSERT INTO users (username, email, password_hash, role)
+VALUES
+( 
+  'Gerardo',
+  'gerardo@studenti.unisa.it',
+  '$2y$10$EMQp/ZLOOUB0ZyWKBKVzoe4cUPXHIKDdsRr1IlsRK/V.tduQbiije',
+  'user'
+),
+(
+  'Sabrina',
+  's.senatore@unisa.it',
+  '$2y$10$yt375umc7iB1fmJ4YR77GOSpxnq2WjAhRNQ9ZuNgUO4rEBsoOro96',
+  'plus'
+),
+(
+  'Admin',
+  'admin@begreen.it',
+  '$2y$10$qsX5tpMSISOTFR4YfRgNG.T1ZLB2lWqyJ4Bc0Umf2LCPU6.XZNW2u',
+  'admin'
+);
 
--- 7. Seed Dati (Veicoli)
+-- Inserimento DB veicoli
 INSERT INTO vehicles (brand, model, battery_capacity, max_charge_power, category, price, image_url) VALUES 
 
 -- CATEGORIA ECONOMY (City Car accessibili)

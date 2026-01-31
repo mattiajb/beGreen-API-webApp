@@ -839,3 +839,66 @@ textarea {
     color: var(--gold); 
     box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
 }
+
+/* --- TOGGLE PASSWORD (OCCHIO) --- */
+.password-container {
+    position: relative; /* Fondamentale: blocca l'icona dentro questo box */
+    width: 100%;
+}
+
+/* Serve a evitare che l'icona si sovrapponga al testo che scrivi */
+.password-container input {
+    padding-right: 40px; 
+}
+
+.toggle-eye {
+    position: absolute; /* Sgancia l'icona dal flusso del testo */
+    right: 15px;        /* La fissa a destra */
+    top: 50%;           /* La centra verticalmente */
+    transform: translateY(-50%); /* Correzione millimetrica del centro */
+    cursor: pointer;
+    color: var(--text-muted);
+    z-index: 10;
+}
+
+.toggle-eye:hover {
+    color: var(--primary);
+}
+
+/* --- LINK BOTTOM PROFILO (Home / Esci) --- */
+.bottom-actions {
+    display: flex;
+    gap: 20px;
+}
+
+.bottom-link {
+    text-decoration: none;
+    font-size: 0.9rem; /* Un po' più grande per leggibilità */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transizione fluida */
+}
+
+/* Stile per HOME */
+.bottom-link.home {
+    color: var(--text-muted);
+}
+
+.bottom-link.home:hover {
+    color: var(--primary); /* Diventa Ciano */
+    text-shadow: 0 0 8px rgba(0, 242, 255, 0.4); /* Alone luminoso */
+    transform: translateY(-2px); /* Si alza leggermente */
+}
+
+/* Stile per ESCI */
+.bottom-link.logout {
+    color: #ff2d55; /* Rosso di base */
+}
+
+.bottom-link.logout:hover {
+    color: #ff0040; /* Rosso acceso */
+    text-shadow: 0 0 8px rgba(255, 0, 64, 0.5); /* Alone rosso */
+    transform: translateY(-2px) translateX(2px); /* Si muove leggermente */
+}

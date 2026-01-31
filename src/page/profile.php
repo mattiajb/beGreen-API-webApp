@@ -166,17 +166,18 @@ if (isset($_GET['success'])) {
                     Aggiorna Password
                 </button>
             </form>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+
         <?php else: ?>
+            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
             <div style="padding: 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
                 <i class="fa-solid fa-lock"></i> Le impostazioni di sicurezza dell'Admin sono gestite internamente.
             </div>
         <?php endif; ?>
 
-        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
 
         <?php if ($role_reale === 'user'): ?>
-        <div style="margin-top: 30px; padding: 20px; border: 1px dashed #ffd700; border-radius: 12px; text-align: center; background: rgba(255, 215, 0, 0.05);">
+                    <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
+        <div style="margin-top: 30px; padding: 20px; border: 1px solid #ffd700; border-radius: 12px; text-align: center; background: rgba(255, 215, 0, 0.05);">
             <p style="font-size: 0.9rem; color: #ffd700; margin-bottom: 15px;">
                 Sblocca funzionalità esclusive
             </p>
@@ -190,14 +191,16 @@ if (isset($_GET['success'])) {
 
         <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 30px;">
             <img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" style="height: 35px; width: auto;">
-            <div style="display: flex; gap: 15px;">
-                <a href="home.php" style="color: var(--text-muted); text-decoration: none; font-size: 0.85rem;">
+
+            <div class="bottom-actions">
+                <a href="home.php" class="bottom-link home">
                     <i class="fa-solid fa-house"></i> Home
                 </a>
-                <a href="logout.php" style="color: #ff2d55; text-decoration: none; font-size: 0.85rem;">
+                <a href="logout.php" class="bottom-link logout">
                     Esci <i class="fa-solid fa-right-from-bracket"></i>
                 </a>
             </div>
+
         </div>
 
     </div>

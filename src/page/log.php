@@ -68,9 +68,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             } else {
                 // Fallimento: Controlliamo se è un errore di duplicato
                 $pg_err = pg_last_error($db);
-                if (strpos($pg_err, 'unique constraint') !== false || strpos($pg_err, 'duplicate key') !== false) {
-                    $error_msg = "Errore: Username o Email già esistenti.";
+                // CORREZIONE QUI: Usiamo una regex per catturare 'duplicate', 'unique' o il codice errore '23505'
+                // Questo funziona sia se il DB è in inglese, sia in italiano.
+                    if (preg_match('/(duplicate|unique|viola|violazione|23505)/i', $pg_err)) {
+                    $error_msg = "Attenzione: Username o Email già utilizzati da un altro utente.";
                 } else {
+                    // Errore tecnico
                     $error_msg = "Errore generico nel database. Riprova più tardi.";
                 }
             }
@@ -133,18 +136,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 <section id="auth-section">
     <div class="auth-wrapper">
-
-        <?php if (!empty($error_msg)): ?>
-            <div class="alert alert-error">
-                <i class="fa-solid fa-circle-exclamation"></i> <?php echo $error_msg; ?>
-            </div>
-        <?php endif; ?>
-
+                    <?php if (!empty($error_msg)): ?>
+                <div class="alert alert-error">
+                    <i class="fa-solid fa-circle-exclamation"></i> <?php echo $error_msg; ?>
+                </div>
+            <?php endif; ?>
         <div id="login-container" style="display: <?php echo $auth_mode === 'login' ? 'block' : 'none'; ?>;">
             <div class="auth-header">
                 <h2>Accedi</h2>
                 <p>Bentornato in beGreen</p>
             </div>
+            <?php if (!empty($success_msg)): ?>
+            <div class="alert alert-success">
+                <i class="fa-solid fa-circle-check"></i> <?php echo $success_msg; ?>
+            </div>
+            <?php endif; ?>
             
             <form action="log.php" method="POST">
                 <input type="hidden" name="action" value="login">
@@ -158,7 +164,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 <div class="form-group">
                     <label for="l-pass">Password</label>
-                    <input type="password" id="l-pass" name="login-pass" placeholder="Password" required>
+                    <div class="password-container">
+                        <input type="password" id="l-pass" name="login-pass" placeholder="Password" required>
+                        <i class="fa-solid fa-eye toggle-eye" onclick="togglePassword('l-pass', this)"></i>
+                    </div>
                 </div>
                 
                 <button type="submit" class="auth-btn">Entra</button>
@@ -194,14 +203,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 
                 <div class="form-group">
                     <label for="r-pass">Password</label>
-                    <input type="password" id="r-pass" name="reg-pass" 
-                           placeholder="Minimo 6 caratteri" required>
+                    <div class="password-container">
+                        <input type="password" id="r-pass" name="reg-pass" placeholder="Minimo 6 caratteri" required>
+                        <i class="fa-solid fa-eye toggle-eye" onclick="togglePassword('r-pass', this)"></i>
+                    </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="r-conf">Conferma Password</label>
-                    <input type="password" id="r-conf" name="reg-pass-conf" 
-                           placeholder="Ripeti password" required>
+                    <div class="password-container">
+                        <input type="password" id="r-conf" name="reg-pass-conf" placeholder="Ripeti password" required>
+                        <i class="fa-solid fa-eye toggle-eye" onclick="togglePassword('r-conf', this)"></i>
+                    </div>
                 </div>
                 
                 <button type="submit" class="auth-btn">Registrati</button>
@@ -236,6 +249,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } else {
             loginCont.style.display = 'block';
             regCont.style.display = 'none';
+        }
+    }
+    
+    function togglePassword(inputId, icon) {
+        const input = document.getElementById(inputId);
+        
+        if (input.type === "password") {
+            input.type = "text"; // Mostra password
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash"); // Cambia icona in occhio sbarrato
+        } else {
+            input.type = "password"; // Nascondi password
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye"); // Torna icona occhio normale
         }
     }
 </script>

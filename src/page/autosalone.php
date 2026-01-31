@@ -99,12 +99,12 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
 
                 <div class="log-container">
                     <?php if (!$is_logged): ?>
-                        <a href="log.php" class="log-btn">
+                        <a href="log.php?redirect=autosalone.php" class="log-btn">
                             <img src="../src_image/images/white_user.png" alt="Logo user" class="logo-user"> Accedi 
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="profile.php" class="user-info">
+                            <a href="profile.php?redirect=autosalone.php" class="user-info">
                                 <span class="user-name">
                                     <i class="fa-solid fa-circle-user"></i> 
                                     <?php echo $username; ?>
@@ -195,7 +195,7 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
                                 Richiedi Informazioni
                             </button>
                         <?php else: ?>
-                            <a href="log.php" class="action-btn btn-quote">
+                            <a href="log.php?redirect=autosalone.php" class="action-btn btn-quote">
                                 Accedi per richiedere
                             </a>
                         <?php endif; ?>
@@ -259,6 +259,13 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
                         <li class="founder">Mario Mele</li>
                         <li class="founder">Cosimo Rivellini</li>
                     </ul>
+                </div>
+                <div class="footer-col">
+                <h3>Contattaci</h3>
+                <ul class="footer-links">
+                    <li><i class="fa-solid fa-envelope" style="color:var(--primary); width:20px;"></i> info@begreen.it</li>
+                    <li><i class="fa-solid fa-location-dot" style="color:var(--primary); width:20px;"></i> Università di Salerno</li>
+                </ul>
                 </div>
             </div>
             <div class="footer-bottom">

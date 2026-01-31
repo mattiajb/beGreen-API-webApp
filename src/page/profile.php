@@ -2,6 +2,28 @@
 session_start();
 require_once 'db.php';
 
+
+// --- MODIFICA: GESTIONE REDIRECT TRAMITE PARAMETRO GET ---
+// Controlliamo se nell'URL c'è ?redirect=nomepagina.php
+if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
+    // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi strani
+    $page = basename($_GET['redirect']);
+    
+    // Lista delle pagine valide (whitelist) per evitare redirect malevoli
+    $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php, admin.php'];
+    
+    if (in_array($page, $allowed_pages)) {
+        $_SESSION['redirect_url'] = $page;
+    } else {
+        $_SESSION['redirect_url'] = 'home.php';
+    }
+}
+
+// Se non abbiamo un url salvato, usiamo la home come default
+if (!isset($_SESSION['redirect_url'])) {
+    $_SESSION['redirect_url'] = 'home.php';
+}
+
 // CONTROLLO ACCESSO
 if (!isset($_SESSION['user_id'])) {
     header("Location: log.php");
@@ -193,8 +215,8 @@ if (isset($_GET['success'])) {
             <img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" style="height: 35px; width: auto;">
 
             <div class="bottom-actions">
-                <a href="home.php" class="bottom-link home">
-                    <i class="fa-solid fa-house"></i> Home
+                <a href="<?php echo htmlspecialchars($_SESSION['redirect_url']); ?>" class="bottom-link home">
+                    <i class="fa-solid fa-house"></i> Torna Indietro
                 </a>
                 <a href="logout.php" class="bottom-link logout">
                     Esci <i class="fa-solid fa-right-from-bracket"></i>

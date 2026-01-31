@@ -70,12 +70,12 @@ $is_admin = ($user_role === 'admin');
 
                 <div class="log-container">
                     <?php if (!$is_logged): ?>
-                        <a href="log.php" class="log-btn">
+                        <a href="log.php?redirect=home.php" class="log-btn">
                             <img src="../src_image/images/white_user.png" alt="Logo user" class="logo-user"> Accedi 
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="profile.php" class="user-info">
+                            <a href="log.php?redirect=home.php" class="user-info">
                                 <span class="user-name">
                                     <i class="fa-solid fa-circle-user"></i> 
                                     <?php echo $username; ?>
@@ -173,6 +173,13 @@ $is_admin = ($user_role === 'admin');
                         <li class="founder">Mario Mele</li>
                         <li class="founder">Cosimo Rivellini</li>
                     </ul>
+                </div>
+                <div class="footer-col">
+                <h3>Contattaci</h3>
+                <ul class="footer-links">
+                    <li><i class="fa-solid fa-envelope" style="color:var(--primary); width:20px;"></i> info@begreen.it</li>
+                    <li><i class="fa-solid fa-location-dot" style="color:var(--primary); width:20px;"></i> Università di Salerno</li>
+                </ul>
                 </div>
             </div>
             <div class="footer-bottom">

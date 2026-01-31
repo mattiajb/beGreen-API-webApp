@@ -3,6 +3,27 @@
 session_start();
 require_once 'db.php'; 
 
+// --- MODIFICA: GESTIONE REDIRECT TRAMITE PARAMETRO GET ---
+// Controlliamo se nell'URL c'è ?redirect=nomepagina.php
+if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
+    // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi strani
+    $page = basename($_GET['redirect']);
+    
+    // Lista delle pagine valide (whitelist) per evitare redirect malevoli
+    $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php, admin.php'];
+    
+    if (in_array($page, $allowed_pages)) {
+        $_SESSION['redirect_url'] = $page;
+    } else {
+        $_SESSION['redirect_url'] = 'home.php';
+    }
+}
+
+// Se non abbiamo un url salvato, usiamo la home come default
+if (!isset($_SESSION['redirect_url'])) {
+    $_SESSION['redirect_url'] = 'home.php';
+}
+
 // Debug: Se $db non esiste, blocca tutto
 if (!isset($db) || !$db) {
     die("Errore: Connessione al database fallita.");
@@ -227,8 +248,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-top: 20px;">
             <img src="../src_image/images/beGreen_cyan.png" alt="Logo beGreen" style="height: 35px; width: auto;">
-            <a href="home.php" class="back-home-btn">
-                <i class="fa-regular fa-circle-xmark"></i>  Torna alla Home
+            <a href="<?php echo htmlspecialchars($_SESSION['redirect_url']); ?>" class="back-home-btn">
+                <i class="fa-regular fa-circle-xmark"></i>  Torna Indietro
             </a>
         </div>
 

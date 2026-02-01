@@ -136,41 +136,41 @@ function updateCarSpecs() {
     }
 }
 
-// --- LOGICA MATEMATICA DI CALCOLO ---
+// --- LOGICA MATEMATICA DI CALCOLO E VALIDAZIONE ---
 function calculateCharging() {
     const select = document.getElementById('car-select');
     const batteryInput = document.getElementById('battery-current');
     const powerInput = document.getElementById('power-input');
-    if (!select.value || !batteryInput.value || !powerInput.value) {
-        alert("Per favore, compila tutti i campi (Auto, % Batteria, Potenza).");
-        return;
+    let errors = [];
+    if (!select.value) {
+        errors.push("Devi selezionare un veicolo dalla lista.");
     }
     const currentBattPercent = parseFloat(batteryInput.value);
+    if (isNaN(currentBattPercent) || currentBattPercent < 0 || currentBattPercent >= 100) {
+        errors.push("La percentuale della batteria deve essere un numero compreso tra 0 e 99.");
+    }
     const stationPower = parseFloat(powerInput.value);
+    if (isNaN(stationPower) || stationPower <= 0) {
+        errors.push("La potenza della colonnina deve essere un numero positivo maggiore di 0.");
+    }
+    if (errors.length > 0) {
+        alert("Impossibile procedere con il calcolo:\n- " + errors.join("\n- "));
+        return;
+    }
     const selectedOption = select.options[select.selectedIndex];
     const carCapacity = parseFloat(selectedOption.dataset.battery);
     const carMaxPower = parseFloat(selectedOption.dataset.power);
-    if (currentBattPercent < 0 || currentBattPercent >= 100) {
-        alert("La percentuale della batteria deve essere compresa tra 0 e 99.");
-        return;
-    }
-    if (stationPower <= 0) {
-        alert("La potenza della colonnina deve essere maggiore di 0.");
-        return;
-    }
-
-    // 5. IL CALCOLO REALE    
     const percentNeeded = 100 - currentBattPercent;
     const kwhNeeded = (carCapacity * percentNeeded) / 100;
     const realChargingPower = Math.min(stationPower, carMaxPower);
     const timeHours = kwhNeeded / realChargingPower;
-    const hours = Math.floor(timeHours); // Parte intera (ore)
-    const minutes = Math.round((timeHours - hours) * 60); // Parte decimale convertita in minuti
+    const hours = Math.floor(timeHours);
+    const minutes = Math.round((timeHours - hours) * 60); 
     let timeString = "";
-    if (hours > 0) timeString += `${hours}h `;
+    if (hours > 0) timeString += `${hours}h`;
     timeString += `${minutes}m`;
     document.getElementById('result-box').style.display = 'block';
-    document.getElementById('res-kwh').innerText = kwhNeeded.toFixed(1); // 1 decimale
+    document.getElementById('res-kwh').innerText = kwhNeeded.toFixed(1);
     document.getElementById('res-power').innerText = realChargingPower.toFixed(1);
     document.getElementById('res-time').innerText = timeString;
 }

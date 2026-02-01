@@ -75,7 +75,7 @@ $is_admin = ($user_role === 'admin');
                     <?php endif; ?>
 
                     <?php if ($is_admin): ?>
-                        <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
+                        <li><a href="admin.php" class="nav-admin"> Admin Panel</a></li>
                     <?php endif; ?>
                 </ul>
 
@@ -86,7 +86,7 @@ $is_admin = ($user_role === 'admin');
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="log.php?redirect=map.php" class="user-info">
+                            <a href="profile.php?redirect=map.php" class="user-info">
                                 <span class="user-name">
                                     <i class="fa-solid fa-circle-user"></i> 
                                     <?php echo $username; ?>
@@ -116,11 +116,11 @@ $is_admin = ($user_role === 'admin');
             <p>Seleziona una colonnina dalla mappa.</p>
 
             <div class="calc-placeholder">
-                <form id="calc-form">
+                <form id="calc-form" novalidate>
                     <div class="form-group">
                         <label>Seleziona il tuo veicolo:</label>
                         
-                        <select id="car-select" required onchange="updateCarSpecs()">
+                            <select id="car-select" required>
                             <option value="">-- Scegli Auto --</option>
                             <?php foreach($cars as $car): ?>
                                 <option 

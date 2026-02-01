@@ -2,10 +2,12 @@
 session_start();
 require_once 'db.php'; 
 
+// Gestione redirect sicuro
 if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
-    // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi
     $page = basename($_GET['redirect']);
-    $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php, admin.php'];
+    // Aggiungi qui tutte le pagine valide del tuo sito
+    $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php', 'admin.php'];
+    
     if (in_array($page, $allowed_pages)) {
         $_SESSION['redirect_url'] = $page;
     } else {
@@ -21,6 +23,7 @@ if (!isset($db) || !$db) {
     die("Errore: Connessione al database fallita.");
 }
 
+// Se l'utente è già loggato, via da qui
 if (isset($_SESSION['user_id']) || isset($_SESSION['username'])) {
     header("Location: home.php");
     exit;
@@ -28,7 +31,7 @@ if (isset($_SESSION['user_id']) || isset($_SESSION['username'])) {
 
 $error_msg = '';
 $success_msg = '';
-$auth_mode = 'login';
+$auth_mode = 'login'; // Default
 $sticky_login_user = '';
 $sticky_reg_user = '';
 $sticky_reg_email = '';
@@ -49,27 +52,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sticky_reg_user = htmlspecialchars($username);
         $sticky_reg_email = htmlspecialchars($email);
 
+        // --- VALIDAZIONE LATO SERVER (PHP) ---
         if (empty($username) || empty($email) || empty($password)) {
             $error_msg = "Tutti i campi sono obbligatori.";
         } elseif ($password !== $password_conf) {
             $error_msg = "Le password non coincidono.";
         } elseif (strlen($password) < 6) {
             $error_msg = "La password deve essere di almeno 6 caratteri.";
+        } elseif (!preg_match('/[A-Z]/', $password)) {
+            $error_msg = "La password deve contenere almeno una lettera maiuscola.";
+        } elseif (!preg_match('/[^a-zA-Z0-9]/', $password)) {
+            $error_msg = "La password deve contenere almeno un carattere speciale.";
         } else {
+            // Se tutto ok, inseriamo nel DB
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
             $query = "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)";
             
+            // Usiamo @ per silenziare errori PHP nativi e gestire pg_last_error
             $result = @pg_query_params($db, $query, [$username, $email, $password_hash]);
 
             if ($result) {
                 $auth_mode = 'login'; 
                 $sticky_login_user = $username;
                 $success_msg = "Registrazione completata! Ora puoi accedere.";
+                // Resettiamo i campi sticky della registrazione
                 $sticky_reg_user = '';
                 $sticky_reg_email = '';
             } else {
                 $pg_err = pg_last_error($db);
-                    if (preg_match('/(duplicate|unique|viola|violazione|23505)/i', $pg_err)) {
+                // Cerchiamo errori di duplicazione (Unique constraint violation)
+                if (preg_match('/(duplicate|unique|viola|violazione|23505)/i', $pg_err)) {
                     $error_msg = "Attenzione: Username o Email già utilizzati da un altro utente.";
                 } else {
                     $error_msg = "Errore generico nel database. Riprova più tardi.";
@@ -97,6 +109,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $user_row = pg_fetch_assoc($result);
 
                 if ($user_row && password_verify($password, $user_row['password_hash'])) {
+                    // Login Success
                     $_SESSION['user_id'] = $user_row['id'];
                     $_SESSION['username'] = $user_row['username'];
                     $_SESSION['role'] = $user_row['role'];
@@ -127,6 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="stylesheet" href="../css/style.css">
+        <script src="../js/log.js"></script>
     </head>
 
 <body>
@@ -137,18 +151,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <i class="fa-solid fa-circle-exclamation"></i> <?php echo $error_msg; ?>
                 </div>
             <?php endif; ?>
-        <div id="login-container" style="display: <?php echo $auth_mode === 'login' ? 'block' : 'none'; ?>;">
-            <div class="auth-header">
-                <h2>Accedi</h2>
-                <p>Bentornato in beGreen</p>
-            </div>
             <?php if (!empty($success_msg)): ?>
             <div class="alert alert-success">
                 <i class="fa-solid fa-circle-check"></i> <?php echo $success_msg; ?>
             </div>
             <?php endif; ?>
-            
-            <form action="log.php" method="POST">
+        <div id="login-container" style="display: <?php echo $auth_mode === 'login' ? 'block' : 'none'; ?>;">
+            <div class="auth-header">
+                <h2>Accedi</h2>
+                <p>Bentornato in beGreen</p>
+            </div>
+        
+                <form id="login-form" action="log.php" method="POST" novalidate>
                 <input type="hidden" name="action" value="login">
                 
                 <div class="form-group">
@@ -180,7 +194,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <p>Benvenuto in beGreen</p>
             </div>
             
-            <form action="log.php" method="POST">
+            <form id="register-form" action="log.php" method="POST" novalidate>
                 <input type="hidden" name="action" value="register">
 
                 <div class="form-group">
@@ -230,37 +244,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     </div>
 </section>
-
-<script>
-    function toggleMode(mode) {
-        const loginCont = document.getElementById('login-container');
-        const regCont = document.getElementById('register-container');
-        const alerts = document.querySelectorAll('.alert');
-
-        alerts.forEach(el => el.style.display = 'none');
-        
-        if (mode === 'register') {
-            loginCont.style.display = 'none';
-            regCont.style.display = 'block';
-        } else {
-            loginCont.style.display = 'block';
-            regCont.style.display = 'none';
-        }
-    }
-    
-    function togglePassword(inputId, icon) {
-        const input = document.getElementById(inputId);
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
-        } else {
-            input.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
-        }
-    }
-</script>
-
 </body>
 </html>

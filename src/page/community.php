@@ -134,7 +134,7 @@ $is_admin = ($user_role === 'admin');
                         <p style="color:var(--text-muted); font-size:0.9rem;">Condividi la tua esperienza con la <b style='color:#ffd700;'>Community+</b>.</p>
                     </div>
                     
-                    <form id="new-topic-form" method="POST" action="community.php">
+                        <form id="new-topic-form" method="POST" action="community.php" novalidate>
                         <div class="form-group">
                             <label>Titolo Discussione</label>
                             <input type="text" name="topic-title" id="topic-title" placeholder="Es: Problema ricarica..." required minlength="5">
@@ -235,6 +235,27 @@ $is_admin = ($user_role === 'admin');
                 const form = document.getElementById('new-topic-form-container');
                 form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
             }
+
+            document.addEventListener("DOMContentLoaded", function() {
+                const topicForm = document.getElementById('new-topic-form');
+                if (topicForm) {
+                    topicForm.addEventListener("submit", function(e) {
+                        const title = document.getElementById('topic-title').value.trim();
+                        const body = document.getElementById('topic-body').value.trim();
+                        let errors = [];
+                        if (title.length < 5) {
+                            errors.push("Il titolo è troppo breve (minimo 5 caratteri).");
+                        }
+                        if (body.length < 10) {
+                            errors.push("Il messaggio è troppo breve per essere pubblicato (minimo 10 caratteri).");
+                        }
+                        if (errors.length > 0) {
+                            e.preventDefault(); // Blocca l'invio al server
+                            alert("Attenzione, ci sono errori nella compilazione:\n- " + errors.join("\n- "));
+                        }
+                    });
+                }
+            });
         </script>
     </body>
 </html>

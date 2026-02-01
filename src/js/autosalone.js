@@ -117,7 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
     if (quoteForm) {
         quoteForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const email = document.getElementById('email').value.trim();
+            const message = document.getElementById('message').value.trim();
+            let errors = [];
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailPattern.test(email)) {
+                errors.push("Inserisci un indirizzo email valido.");
+            }
+            if (message.length < 10) {
+                errors.push("Il testo del messaggio è troppo breve (minimo 10 caratteri).");
+            }
+            if (errors.length > 0) {
+                alert("Impossibile inviare la richiesta:\n- " + errors.join("\n- "));
+                return;
+            }
             alert(`Richiesta inviata con successo da ${email}! Ti contatteremo al più presto.`);
             modal.classList.remove('active');
             quoteForm.reset();

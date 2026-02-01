@@ -85,7 +85,6 @@ $res_cars = pg_query($db, "SELECT * FROM vehicles ORDER BY brand ASC");
 
 <!DOCTYPE html>
 <html lang="it">
-<head>
     <head>
         <title> Admin | beGreen</title>
         <meta charset="UTF-8">
@@ -189,7 +188,7 @@ $res_cars = pg_query($db, "SELECT * FROM vehicles ORDER BY brand ASC");
 
         <div class="admin-card">
             <h2><i class="fa-solid fa-plus-circle"></i> Inserimento veicolo nel Database</h2>
-            <form method="POST">
+            <form id="add-vehicle-form" method="POST" novalidate>
                 <div class="table-responsive">
                     <table class="form-table">
                         <thead>
@@ -313,5 +312,43 @@ $res_cars = pg_query($db, "SELECT * FROM vehicles ORDER BY brand ASC");
             </div>
         </div>
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const vehicleForm = document.getElementById('add-vehicle-form');
+
+        if (vehicleForm) {
+            vehicleForm.addEventListener("submit", function(e) {
+                const brand = vehicleForm.querySelector('input[name="brand"]').value.trim();
+                const model = vehicleForm.querySelector('input[name="model"]').value.trim();
+                const battery = parseFloat(vehicleForm.querySelector('input[name="battery_capacity"]').value);
+                const power = parseFloat(vehicleForm.querySelector('input[name="max_charge_power"]').value);
+                const price = parseFloat(vehicleForm.querySelector('input[name="price"]').value);
+                const imageUrl = vehicleForm.querySelector('input[name="image_url"]').value.trim();
+                let errors = [];
+                if (brand === "" || model === "") {
+                    errors.push("Marca e Modello sono obbligatori.");
+                }
+                if (isNaN(battery) || battery <= 0) {
+                    errors.push("La capacità della batteria (kWh) deve essere maggiore di 0.");
+                }
+                if (isNaN(power) || power <= 0) {
+                    errors.push("La potenza di ricarica (kW) deve essere maggiore di 0.");
+                }
+                if (isNaN(price) || price <= 0) {
+                    errors.push("Il prezzo deve essere maggiore di 0.");
+                }
+                const urlPattern = /^(https?:\/\/[^\s]+)/;
+                if (!urlPattern.test(imageUrl)) {
+                    errors.push("Inserisci un URL valido per l'immagine (deve iniziare con http:// o https://).");
+                }
+                if (errors.length > 0) {
+                    e.preventDefault();
+                    alert("Impossibile inserire il veicolo:\n- " + errors.join("\n- "));
+                }
+            });
+        }
+    });
+    </script>
 </body>
 </html>

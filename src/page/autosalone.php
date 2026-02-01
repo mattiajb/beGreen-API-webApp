@@ -192,7 +192,7 @@ if (!$vehicles) $vehicles = [];
             <h2>Contattaci</h2>
             <p style="margin-bottom:20px; color:#ccc;">Compila il modulo per ricevere una risposta ufficiale via email.</p>
             
-            <form id="quote-form">
+            <form id="quote-form" novalidate>
                 <div class="form-group">
                     <label for="email">La tua Email</label>
                     <input type="email" id="email" name="email" required placeholder="esempio@email.com">

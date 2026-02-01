@@ -48,6 +48,12 @@ if (isset($_POST['update_password'])) {
     } 
     elseif (strlen($new_pass_input) < 6) {
         $error = "La nuova password deve avere almeno 6 caratteri.";
+    } 
+    elseif (!preg_match('/[A-Z]/', $new_pass_input)) {
+        $error = "La nuova password deve contenere almeno una lettera maiuscola.";
+    } 
+    elseif (!preg_match('/[^a-zA-Z0-9]/', $new_pass_input)) {
+        $error = "La nuova password deve contenere almeno un carattere speciale.";
     }
     else {
         $new_hash = password_hash($new_pass_input, PASSWORD_DEFAULT);
@@ -147,19 +153,29 @@ if (isset($_GET['success'])) {
         <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
 
         <?php if ($role_reale !== 'admin'): ?>
-            <form method="POST">
-                <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 15px;">Cambia Password</h3>
+            <form id="password-form" method="POST" novalidate>
+            <h3 style="color: var(--primary); font-size: 1rem; margin-bottom: 15px;">Cambia Password</h3>
+                
                 <div class="form-group">
-                    <input type="password" name="current_pass" placeholder="Password attuale" required>
+                    <div class="password-container" style="position: relative;">
+                        <input type="password" id="current_pass" name="current_pass" placeholder="Password attuale" required style="padding-right: 40px;">
+                        <i class="fa-solid fa-eye toggle-eye" onclick="togglePassword('current_pass', this)" 
+                           style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;"></i>
+                    </div>
                 </div>
+                
                 <div class="form-group">
-                    <input type="password" name="new_pass" placeholder="Nuova password" required>
+                    <div class="password-container" style="position: relative;">
+                        <input type="password" id="new_pass" name="new_pass" placeholder="Nuova password" required style="padding-right: 40px;">
+                        <i class="fa-solid fa-eye toggle-eye" onclick="togglePassword('new_pass', this)" 
+                           style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #aaa;"></i>
+                    </div>
                 </div>
+
                 <button type="submit" name="update_password" class="auth-btn" style="background: transparent; border: 1px solid var(--primary); color: var(--primary);">
                     Aggiorna Password
                 </button>
             </form>
-
         <?php else: ?>
             <div style="padding: 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
                 <i class="fa-solid fa-lock"></i> Le impostazioni di sicurezza dell'Admin sono gestite internamente.
@@ -198,5 +214,52 @@ if (isset($_GET['success'])) {
     </div>
 </section>
 
+<script>
+// Funzione per mostrare/nascondere la password
+function togglePassword(inputId, icon) {
+    const input = document.getElementById(inputId);
+    if (input.type === "password") {
+        input.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+    } else {
+        input.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+    const passForm = document.getElementById('password-form');
+
+    if (passForm) {
+        passForm.addEventListener("submit", function(e) {
+            // Nota: abbiamo aggiunto gli ID 'current_pass' e 'new_pass' nell'HTML sopra
+            const currentPass = document.getElementById('current_pass').value;
+            const newPass = document.getElementById('new_pass').value;
+            
+            let errors = [];
+            
+            if (currentPass === "") {
+                errors.push("Devi inserire la password attuale per procedere.");
+            }
+            if (newPass.length < 6) {
+                errors.push("La nuova password deve essere di almeno 6 caratteri.");
+            }
+            if (!/[A-Z]/.test(newPass)) {
+                errors.push("La nuova password deve contenere almeno una lettera MAIUSCOLA.");
+            }
+            if (!/[^a-zA-Z0-9]/.test(newPass)) {
+                errors.push("La nuova password deve contenere almeno un carattere speciale (es. ! @ #).");
+            }
+            
+            if (errors.length > 0) {
+                e.preventDefault();
+                alert("Impossibile aggiornare la password:\n- " + errors.join("\n- "));
+            }
+        });
+    }
+});
+</script>
 </body>
 </html>

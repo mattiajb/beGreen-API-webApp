@@ -1,15 +1,9 @@
 <?php
 session_start();
 require_once 'db.php';
-
-
-// --- MODIFICA: GESTIONE REDIRECT TRAMITE PARAMETRO GET ---
-// Controlliamo se nell'URL c'è ?redirect=nomepagina.php
 if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
     // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi strani
     $page = basename($_GET['redirect']);
-    
-    // Lista delle pagine valide (whitelist) per evitare redirect malevoli
     $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php', 'admin.php'];
     
     if (in_array($page, $allowed_pages)) {
@@ -19,12 +13,10 @@ if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
     }
 }
 
-// Se non abbiamo un url salvato, usiamo la home come default
 if (!isset($_SESSION['redirect_url'])) {
     $_SESSION['redirect_url'] = 'home.php';
 }
 
-// CONTROLLO ACCESSO
 if (!isset($_SESSION['user_id'])) {
     header("Location: log.php");
     exit();
@@ -34,8 +26,6 @@ $user_id = $_SESSION['user_id'];
 $message = "";
 $error = "";
 
-// 2. RECUPERO DATI UTENTE (SPOSTATO QUI IN ALTO)
-// È fondamentale recuperare la password hash PRIMA di provare a cambiarla
 $query_user = "SELECT username, email, role, password_hash FROM users WHERE id = $1";
 $result_user = pg_query_params($db, $query_user, array($user_id));
 
@@ -43,20 +33,16 @@ if ($user_data = pg_fetch_assoc($result_user)) {
     $email_reale = $user_data['email'];
     $username_reale = $user_data['username'];
     $role_reale = $user_data['role']; 
-    $current_hash_db = $user_data['password_hash']; // Ora la variabile è definita!
+    $current_hash_db = $user_data['password_hash'];
 } else {
-    // Se l'utente non esiste nel DB
     session_destroy();
     header("Location: log.php");
     exit();
 }
 
-// 3. LOGICA CAMBIO PASSWORD
 if (isset($_POST['update_password'])) {
     $current_pass_input = $_POST['current_pass'];
     $new_pass_input = $_POST['new_pass'];
-
-    // Ora $current_hash_db esiste ed è popolata
     if (!password_verify($current_pass_input, $current_hash_db)) {
         $error = "La password attuale non è corretta.";
     } 
@@ -64,7 +50,6 @@ if (isset($_POST['update_password'])) {
         $error = "La nuova password deve avere almeno 6 caratteri.";
     }
     else {
-        // Aggiornamento password
         $new_hash = password_hash($new_pass_input, PASSWORD_DEFAULT);
         
         $query_update_pass = "UPDATE users SET password_hash = $1 WHERE id = $2";
@@ -72,16 +57,14 @@ if (isset($_POST['update_password'])) {
 
         if ($result_update) {
             $message = "Password aggiornata con successo!";
-            $current_hash_db = $new_hash; // Aggiorniamo la variabile locale per evitare errori
+            $current_hash_db = $new_hash;
         } else {
             $error = "Errore durante l'aggiornamento della password.";
         }
     }
 }
 
-// "DIVENTA PLUS" (Aggiornamento nel Database)
 if (isset($_POST['go_plus'])) {
-    // Aggiornanemdo del ruolo nel DB
     $query_plus = "UPDATE users SET role = 'plus' WHERE id = $1";
     $result_plus = pg_query_params($db, $query_plus, array($user_id));
 
@@ -94,7 +77,6 @@ if (isset($_POST['go_plus'])) {
     }
 }
 
-// GESTIONE ETICHETTE E STILI IN BASE AL RUOLO
 $user_label = "STANDARD";
 $badge_style = ""; 
 
@@ -107,7 +89,7 @@ switch ($role_reale) {
         $user_label = "UTENTE PLUS+";
         $badge_style = "color: #ffd700; border-color: #ffd700; font-weight: bold; text-shadow: 0 0 10px rgba(255, 215, 0, 0.5); box-shadow: inset 0 0 10px rgba(255, 215, 0, 0.1);";
         break;
-    default: // user standard
+    default:
         $user_label = "STANDARD";
         $badge_style = "color: var(--text-muted); border-color: rgba(255,255,255,0.2);";
         break;

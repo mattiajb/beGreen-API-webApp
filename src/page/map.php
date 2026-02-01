@@ -6,7 +6,7 @@ if ($db) {
     $query = "SELECT id, brand, model, battery_capacity, max_charge_power FROM vehicles ORDER BY brand ASC";
     $result = pg_query($db, $query);
     $cars = pg_fetch_all($result);
-    if (!$cars) $cars = []; // Se vuoto
+    if (!$cars) $cars = [];
 } else {
     $cars = [];
     $error_db = "Errore connessione database";
@@ -17,7 +17,6 @@ $username = "Ospite";
 $user_role = "guest"; 
 $user_label = "Visitatore";
 
-// Variabili per lo stile dinamico
 $badge_class = ""; 
 
 if (isset($_SESSION['user_id'])) {
@@ -28,17 +27,17 @@ if (isset($_SESSION['user_id'])) {
     switch ($user_role) {
         case 'admin':
             $user_label = "ADMIN";
-            $badge_class = "type-admin"; // Classe CSS per Admin
+            $badge_class = "type-admin";
             break;
             
         case 'plus':
             $user_label = "UTENTE PLUS+";
-            $badge_class = "type-plus"; // Classe CSS per Plus
+            $badge_class = "type-plus"; 
         break;
             
-        default: // User standard
+        default:
             $user_label = "STANDARD";
-            $badge_class = "type-standard"; // Classe CSS per Standard
+            $badge_class = "type-standard"; 
             break;
     }
 }

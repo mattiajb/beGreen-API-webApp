@@ -1,17 +1,11 @@
 <?php
-// 1. Avvio Sessione e Inclusione DB
 session_start();
 require_once 'db.php'; 
 
-// --- MODIFICA: GESTIONE REDIRECT TRAMITE PARAMETRO GET ---
-// Controlliamo se nell'URL c'è ?redirect=nomepagina.php
 if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
-    // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi strani
+    // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi
     $page = basename($_GET['redirect']);
-    
-    // Lista delle pagine valide (whitelist) per evitare redirect malevoli
     $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php, admin.php'];
-    
     if (in_array($page, $allowed_pages)) {
         $_SESSION['redirect_url'] = $page;
     } else {
@@ -19,31 +13,26 @@ if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
     }
 }
 
-// Se non abbiamo un url salvato, usiamo la home come default
 if (!isset($_SESSION['redirect_url'])) {
     $_SESSION['redirect_url'] = 'home.php';
 }
 
-// Debug: Se $db non esiste, blocca tutto
 if (!isset($db) || !$db) {
     die("Errore: Connessione al database fallita.");
 }
 
-// Se l'utente è già loggato, via alla home
 if (isset($_SESSION['user_id']) || isset($_SESSION['username'])) {
     header("Location: home.php");
     exit;
 }
 
-// 2. Inizializzazione Variabili
 $error_msg = '';
 $success_msg = '';
-$auth_mode = 'login'; // Default view
+$auth_mode = 'login';
 $sticky_login_user = '';
 $sticky_reg_user = '';
 $sticky_reg_email = '';
 
-// 3. Gestione del Form
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $action = $_POST['action'] ?? '';
@@ -57,11 +46,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $password = $_POST['reg-pass'];
         $password_conf = $_POST['reg-pass-conf'];
 
-        // Mantieni i valori nei campi in caso di errore
         $sticky_reg_user = htmlspecialchars($username);
         $sticky_reg_email = htmlspecialchars($email);
 
-        // Validazione Input
         if (empty($username) || empty($email) || empty($password)) {
             $error_msg = "Tutti i campi sono obbligatori.";
         } elseif ($password !== $password_conf) {
@@ -69,32 +56,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         } elseif (strlen($password) < 6) {
             $error_msg = "La password deve essere di almeno 6 caratteri.";
         } else {
-            // Hashing della password
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-
-            // Query Parametrica per Inserimento
             $query = "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3)";
             
-            // Usiamo @ per sopprimere il warning PHP in caso di duplicato (gestiamo noi l'errore)
             $result = @pg_query_params($db, $query, [$username, $email, $password_hash]);
 
             if ($result) {
-                // Successo
                 $auth_mode = 'login'; 
-                $sticky_login_user = $username; // Precompila il login
+                $sticky_login_user = $username;
                 $success_msg = "Registrazione completata! Ora puoi accedere.";
-                // Reset dei campi di registrazione
                 $sticky_reg_user = '';
                 $sticky_reg_email = '';
             } else {
-                // Fallimento: Controlliamo se è un errore di duplicato
                 $pg_err = pg_last_error($db);
-                // CORREZIONE QUI: Usiamo una regex per catturare 'duplicate', 'unique' o il codice errore '23505'
-                // Questo funziona sia se il DB è in inglese, sia in italiano.
                     if (preg_match('/(duplicate|unique|viola|violazione|23505)/i', $pg_err)) {
                     $error_msg = "Attenzione: Username o Email già utilizzati da un altro utente.";
                 } else {
-                    // Errore tecnico
                     $error_msg = "Errore generico nel database. Riprova più tardi.";
                 }
             }
@@ -113,7 +90,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (empty($username) || empty($password)) {
             $error_msg = "Inserisci username e password.";
         } else {
-            // Query diretta con pg_query_params (più semplice e sicura di prepare/execute per query singole)
             $query = "SELECT id, username, password_hash, role FROM users WHERE username = $1";
             $result = pg_query_params($db, $query, array($username));
             
@@ -121,7 +97,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $user_row = pg_fetch_assoc($result);
 
                 if ($user_row && password_verify($password, $user_row['password_hash'])) {
-                    // Login corretto: Salva sessione
                     $_SESSION['user_id'] = $user_row['id'];
                     $_SESSION['username'] = $user_row['username'];
                     $_SESSION['role'] = $user_row['role'];
@@ -209,7 +184,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="hidden" name="action" value="register">
 
                 <div class="form-group">
-                    <label for="r-user">Nome Utente</label>
+                    <label for="r-user">Username</label>
                     <input type="text" id="r-user" name="reg-user" 
                            placeholder="Scegli un username" 
                            value="<?php echo $sticky_reg_user; ?>" required>
@@ -275,15 +250,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     function togglePassword(inputId, icon) {
         const input = document.getElementById(inputId);
-        
         if (input.type === "password") {
-            input.type = "text"; // Mostra password
+            input.type = "text";
             icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash"); // Cambia icona in occhio sbarrato
+            icon.classList.add("fa-eye-slash");
         } else {
-            input.type = "password"; // Nascondi password
+            input.type = "password";
             icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye"); // Torna icona occhio normale
+            icon.classList.add("fa-eye");
         }
     }
 </script>

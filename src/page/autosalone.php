@@ -2,13 +2,11 @@
 session_start();
 require_once 'db.php';
 
-// --- GESTIONE SESSIONE E RUOLI (Logica standard di home.php) ---
 $is_logged = false;
 $username = "Ospite";
 $user_role = "guest"; 
 $user_label = "Visitatore";
 
-// Variabili per lo stile dinamico del badge
 $badge_class = ""; 
 
 if (isset($_SESSION['user_id'])) {
@@ -19,36 +17,29 @@ if (isset($_SESSION['user_id'])) {
     switch ($user_role) {
         case 'admin':
             $user_label = "ADMIN";
-            $badge_class = "type-admin"; // Classe CSS per Admin
+            $badge_class = "type-admin";
             break;
             
         case 'plus':
             $user_label = "UTENTE PLUS+";
-            $badge_class = "type-plus"; // Classe CSS per Plus
+            $badge_class = "type-plus";
         break;
             
-        default: // User standard
+        default: 
             $user_label = "STANDARD";
-            $badge_class = "type-standard"; // Classe CSS per Standard
+            $badge_class = "type-standard";
             break;
     }
 }
 
-// --- PERMESSI ---
 $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 
-// *** FIX ERRORE: Definizione esplicita della variabile mancante ***
-// La logica è: se sei loggato (qualsiasi ruolo), puoi richiedere informazioni.
 $can_request_quote = $is_logged;
 
-// --- LOGICA AUTOSALONE (Database e Filtri) ---
-
-// Recupero categoria dal filtro GET
 $filter_category = isset($_GET['category']) ? $_GET['category'] : 'all';
 $valid_categories = ['economy', 'normal', 'luxury'];
 
-// Costruzione Query Dinamica
 $sql = "SELECT * FROM vehicles";
 $params = [];
 
@@ -59,10 +50,9 @@ if (in_array($filter_category, $valid_categories)) {
 
 $sql .= " ORDER BY price ASC";
 
-// Esecuzione Query PostgreSQL
 $result = pg_query_params($db, $sql, $params);
 $vehicles = pg_fetch_all($result);
-if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
+if (!$vehicles) $vehicles = [];
 ?>
 
 <!DOCTYPE html>
@@ -78,6 +68,7 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="../css/style.css">
+        <script src="../js/autosalone.js"></script>
     </head>
     <body>
         <header class="site-header">
@@ -123,22 +114,16 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
             </nav>
         </header>
 
-        <!-- AUTOSALONE -->
-         <main>
+        <main>
         <div class="autosalone-container">
-            
-            <!-- COLONNA SINISTRA: CATALOGO (2/3) -->
             <section class="catalog-section">
                 <h1>Il nostro <span class="highlight">Autosalone</span></h1>
-                
-                <!-- Barra Filtri -->
                 <div class="filter-bar">
                     <a href="autosalone.php" class="filter-btn <?php echo $filter_category == 'all' ? 'active' : ''; ?>">Tutte</a>
                     <a href="autosalone.php?category=economy" class="filter-btn <?php echo $filter_category == 'economy' ? 'active' : ''; ?>">Economy</a>
                     <a href="autosalone.php?category=normal" class="filter-btn <?php echo $filter_category == 'normal' ? 'active' : ''; ?>">Normal</a>
                     <a href="autosalone.php?category=luxury" class="filter-btn <?php echo $filter_category == 'luxury' ? 'active' : ''; ?>">Luxury</a>
                 </div>
-
                 <!-- Griglia Auto -->
                 <div class="cars-grid">
                             <?php if (!empty($vehicles)): ?>
@@ -150,12 +135,9 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
                                     data-model="<?php echo htmlspecialchars($car['model']); ?>"
                                     data-price="<?php echo $car['price']; ?>"
                                     data-image="<?php echo htmlspecialchars($car['image_url']); ?>">
-                                    
                                     <img src="<?php echo htmlspecialchars($car['image_url']); ?>" 
                                         alt="<?php echo htmlspecialchars($car['model']); ?>" 
-                                        class="car-img"
-                                        onerror="this.src='https://placehold.co/600x400/1e1e1e/FFF?text=Auto+Elettrica'">
-                                    
+                                        class="car-img">
                                     <div class="car-info">
                                         <h3><?php echo htmlspecialchars($car['brand'] . ' ' . $car['model']); ?></h3>
                                         <p><i class="fa-solid fa-battery-full"></i> <?php echo $car['battery_capacity']; ?> kWh</p>
@@ -167,12 +149,11 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
                                 </div>
                             <?php endforeach; ?>
                         <?php else: ?>
-                            <p style="color: #fff;">Nessuna auto trovata in questa categoria.</p>
+                            <p style="color: var(--text-main);">Nessuna auto trovata in questa categoria.</p>
                         <?php endif; ?>
                     </div>
             </section>
 
-            <!-- COLONNA DESTRA: CARRELLO (1/3) -->
             <section class="cart-section">
                 <div class="sticky-cart" id="cart-zone" data-logged="<?php echo $is_logged ? 'true' : 'false'; ?>">
                     
@@ -226,10 +207,6 @@ if (!$vehicles) $vehicles = []; // Evita errori se array vuoto
             </form>
         </div>
     </div>
-
-    <!-- JS Logic -->
-    <script src="../js/autosalone.js"></script>
-
         <footer>
             <div class="footer-container">
                 <div class="footer-col">

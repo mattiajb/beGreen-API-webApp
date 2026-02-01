@@ -7,7 +7,6 @@ $username = "Ospite";
 $user_role = "guest"; 
 $user_label = "Visitatore";
 
-// Variabili per lo stile dinamico
 $badge_class = ""; 
 
 if (isset($_SESSION['user_id'])) {
@@ -18,17 +17,17 @@ if (isset($_SESSION['user_id'])) {
     switch ($user_role) {
         case 'admin':
             $user_label = "ADMIN";
-            $badge_class = "type-admin"; // Classe CSS per Admin
+            $badge_class = "type-admin";
             break;
             
         case 'plus':
             $user_label = "UTENTE PLUS+";
-            $badge_class = "type-plus"; // Classe CSS per Plus
+            $badge_class = "type-plus";
         break;
             
-        default: // User standard
+        default:
             $user_label = "STANDARD";
-            $badge_class = "type-standard"; // Classe CSS per Standard
+            $badge_class = "type-standard";
             break;
     }
 }
@@ -49,6 +48,7 @@ $is_admin = ($user_role === 'admin');
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="../css/style.css">
+        <script src="../js/home.js"></script>
     </head>
     <body>
         <header class="site-header">
@@ -112,7 +112,7 @@ $is_admin = ($user_role === 'admin');
                 </div>
             </div>
             </section>
-
+             
             <section class="team-container">
                 <h2 class="team-title">beGreen <span class="highlight">Team</span></h2>
                 <div class="team-grid">

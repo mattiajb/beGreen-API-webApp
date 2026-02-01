@@ -2,13 +2,11 @@
 session_start();
 require_once 'db.php';
 
-// --- 1. CONTROLLO ACCESSO ---
 $is_logged = false;
 $username = "Ospite";
 $user_role = "guest"; 
 $user_label = "Visitatore";
 
-// Variabili per lo stile dinamico
 $badge_class = ""; 
 
 if (isset($_SESSION['user_id'])) {
@@ -19,24 +17,23 @@ if (isset($_SESSION['user_id'])) {
     switch ($user_role) {
         case 'admin':
             $user_label = "ADMIN";
-            $badge_class = "type-admin"; // Classe CSS per Admin
+            $badge_class = "type-admin";
             break;
             
         case 'plus':
             $user_label = "UTENTE PLUS+";
-            $badge_class = "type-plus"; // Classe CSS per Plus
+            $badge_class = "type-plus";
         break;
             
-        default: // User standard
+        default:
             $user_label = "STANDARD";
-            $badge_class = "type-standard"; // Classe CSS per Standard
+            $badge_class = "type-standard";
             break;
     }
 }
 $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 
-// --- 2. LOGICA CRUD (POST/GET) ---
 if (isset($_GET['delete_user'])) {
     $id = (int)$_GET['delete_user'];
     pg_query_params($db, "DELETE FROM users WHERE id = $1 AND role != 'admin'", array($id));
@@ -81,7 +78,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
     exit();
 }
 
-// --- 3. RECUPERO DATI ---
 $res_users = pg_query($db, "SELECT * FROM users ORDER BY id ASC");
 $res_forum = pg_query($db, "SELECT f.*, u.username as author FROM forum_db f JOIN users u ON f.user_id = u.id ORDER BY created_at DESC");
 $res_cars = pg_query($db, "SELECT * FROM vehicles ORDER BY brand ASC");

@@ -17,17 +17,17 @@ if (isset($_SESSION['user_id'])) {
     switch ($user_role) {
         case 'admin':
             $user_label = "ADMIN";
-            $badge_class = "type-admin"; // Classe CSS per Admin
+            $badge_class = "type-admin";
             break;
             
         case 'plus':
             $user_label = "UTENTE PLUS+";
-            $badge_class = "type-plus"; // Classe CSS per Plus
+            $badge_class = "type-plus";
         break;
             
-        default: // User standard
+        default: 
             $user_label = "STANDARD";
-            $badge_class = "type-standard"; // Classe CSS per Standard
+            $badge_class = "type-standard";
             break;
     }
 }
@@ -54,7 +54,6 @@ $is_admin = ($user_role === 'admin');
 
     $result_posts = pg_query($db, $query_posts);
 
-    // Se la query fallisce, stampa l'errore per capire cosa non va
     if (!$result_posts) {
         die("Errore nel database: " . pg_last_error($db));
     }
@@ -131,7 +130,7 @@ $is_admin = ($user_role === 'admin');
 
                 <div id="new-topic-form-container">
                     <div class="new-topic-header">
-                        <h3 style="color:var(--primary-cyan)">Crea Nuova Discussione</h3>
+                        <h3 style="color:var(--primary)">Crea Nuova Discussione</h3>
                         <p style="color:var(--text-muted); font-size:0.9rem;">Condividi la tua esperienza con la <b style='color:#ffd700;'>Community+</b>.</p>
                     </div>
                     
@@ -163,7 +162,6 @@ $is_admin = ($user_role === 'admin');
                     </form>
                 </div>
 
-                <!-- Visualizzazione dei post dal database -->
                 <div class="forum-grid" id="forum-container">
                     <?php while ($post = pg_fetch_assoc($result_posts)): ?>
                         <?php $date_formatted = date("d/m/Y H:i", strtotime($post['created_at'])); ?>

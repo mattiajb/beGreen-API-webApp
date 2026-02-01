@@ -150,6 +150,13 @@ The **beGreen** platform is implemented using standard Web technologies, with a 
 
 ## 💻 UI Preview
 ![Home](UI_img/home.png)
+![Map](UI_img/map.png)
+![Autosalone](UI_img/autosalone.png)
+![Login](UI_img/login.png)
+![Register](UI_img/reg.png)
+![Profile](UI_img/profile.png)
+![Community+](UI_img/community.png)
+![Admin Panel](UI_img/admin.png)
 
 ---
 

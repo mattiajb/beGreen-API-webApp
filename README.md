@@ -12,6 +12,7 @@ at the **University of Salerno (Università degli Studi di Salerno, Italy)**.
 - [Project Overview](#-project-overview)
 - [Technologies & Dependencies](#-technologies--dependencies)
 - [Main Features](#-main-features)
+- [UI Preview](#-ui-preview)
 - [Project Structure](#-project-structure)
 - [Language & Naming Conventions](#-language--naming-conventions)
 - [Setup & Run](#-setup--run)
@@ -146,6 +147,12 @@ The **beGreen** platform is implemented using standard Web technologies, with a 
   - community discussions.
 - Enforcement of database integrity and role constraints.
 ---
+
+## 💻 UI Preview
+![Home](UI_img/home.png)
+
+---
+
 ## 🧱 Project Structure
 
 The project follows a clear and modular directory structure, separating presentation, logic, assets and documentation.

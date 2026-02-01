@@ -10,7 +10,7 @@ if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
     $page = basename($_GET['redirect']);
     
     // Lista delle pagine valide (whitelist) per evitare redirect malevoli
-    $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php, admin.php'];
+    $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php', 'admin.php'];
     
     if (in_array($page, $allowed_pages)) {
         $_SESSION['redirect_url'] = $page;
@@ -121,28 +121,17 @@ if (isset($_GET['success'])) {
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <title>Profilo | beGreen</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="../src_image/favicon/favicon-96x96.png" sizes="96x96" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="../css/style.css">
-    <style>
-        /* Stile specifico per i campi non modificabili */
-        input[readonly] {
-            background: rgba(255, 255, 255, 0.03);
-            color: var(--text-muted);
-            cursor: not-allowed;
-            border: 1px dashed rgba(255, 255, 255, 0.1);
-        }
-        /* Highlight per il ruolo Plus */
-        .status-plus {
-            border-color: var(--primary) !important;
-            color: var(--primary) !important;
-            font-weight: bold;
-        }
-    </style>
-</head>
+        <title>Profili | beGreen</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Web App progettata per rispondere alle sfide emergenti dell'energia rinnovabile nel settore delle auto elettriche">
+        <link rel="icon" type="image/png" href="../src_image/favicon/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
+        <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
+        <link rel="stylesheet" href="../css/style.css">
+    </head>
 <body>
 
 <section id="auth-section">
@@ -190,7 +179,6 @@ if (isset($_GET['success'])) {
             </form>
 
         <?php else: ?>
-            <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 25px 0;">
             <div style="padding: 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; text-align: center; color: var(--text-muted); font-size: 0.85rem;">
                 <i class="fa-solid fa-lock"></i> Le impostazioni di sicurezza dell'Admin sono gestite internamente.
             </div>

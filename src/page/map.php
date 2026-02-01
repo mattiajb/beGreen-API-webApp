@@ -183,9 +183,9 @@ $is_admin = ($user_role === 'admin');
                     <ul class="footer-links">
                         <li><a href="home.php">Home</a></li>
                         <li><a href="map.php">Charge Map</a></li>
-                        <li><a href="autosalone.html">Autosalone</a></li>
+                        <li><a href="autosalone.php">Autosalone</a></li>
                         <?php if ($can_access_plus): ?>
-                            <li><a href="community.html">Community Forum</a></li>
+                            <li><a href="community.php">Community Forum</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>

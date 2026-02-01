@@ -63,94 +63,16 @@ $is_admin = ($user_role === 'admin');
 <!DOCTYPE html>
 <html lang="it">
     <head>
-        <title>Community+ | beGreen</title>
+        <title> Community+ | beGreen</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Community Forum per utenti beGreen">
+        <meta name="description" content="Web App progettata per rispondere alle sfide emergenti dell'energia rinnovabile nel settore delle auto elettriche">
         <link rel="icon" type="image/png" href="../src_image/favicon/favicon-96x96.png" sizes="96x96" />
+        <link rel="icon" type="image/svg+xml" href="../src_image/favicon/favicon.svg" />
+        <link rel="shortcut icon" href="../src_image/favicon/favicon.ico"/>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="manifest" href="../src_image/favicon/site.webmanifest"/>
         <link rel="stylesheet" href="../css/style.css">
-        
-        <style>
-            :root {
-                --primary-cyan: #00f2ff;
-                --text-muted: #94a3b8;
-                --card-bg-dark: rgba(30, 41, 59, 0.8);
-            }
-            
-            main {
-                background-color: #0b1120;
-                color: #f8fafc;
-                min-height: 80vh;
-                padding-top: 2rem;
-            }
-
-            .forum-container-custom {
-                max-width: 1200px;
-                margin: 0 auto;
-                padding: 0 2rem;
-            }
-
-            .forum-controls {
-                text-align: right;
-                margin-bottom: 2rem;
-            }
-
-            .auth-btn-custom {
-                background: linear-gradient(135deg, #4361ee, var(--primary-cyan));
-                border: none;
-                padding: 0.5rem 1.5rem;
-                border-radius: 50px;
-                color: white;
-                font-weight: bold;
-                cursor: pointer;
-                transition: transform 0.2s;
-            }
-            .auth-btn-custom:hover { transform: translateY(-2px); }
-
-            /* New Topic Form */
-            #new-topic-form-container {
-                max-width: 900px;
-                margin: 0 auto 2rem auto;
-                background: var(--card-bg-dark);
-                border: 1px solid var(--primary-cyan);
-                border-radius: 12px;
-                padding: 2rem;
-                display: none; /* Nascosto di default */
-            }
-
-            .form-group { margin-bottom: 1.2rem; }
-            .form-group label { display: block; margin-bottom: 0.5rem; color: #ccc; }
-            
-            .form-group input, .form-group select, .form-group textarea {
-                width: 100%;
-                padding: 12px;
-                background: rgba(0, 0, 0, 0.3);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 8px;
-                color: white;
-                font-family: inherit;
-            }
-
-            /* Forum Cards */
-            .forum-grid {
-                display: grid;
-                gap: 1.5rem;
-                max-width: 900px;
-                margin: 0 auto;
-            }
-
-            .forum-card {
-                background: var(--card-bg-dark);
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                border-radius: 12px;
-                padding: 1.5rem;
-                transition: border-color 0.3s;
-            }
-            .forum-card:hover { border-color: var(--primary-cyan); }
-            
-            .error-msg { color: #f72585; font-size: 0.85rem; display: none; margin-top: 5px; }
-        </style>
     </head>
     <body>
         <header class="site-header">
@@ -166,7 +88,7 @@ $is_admin = ($user_role === 'admin');
                     <?php endif; ?>
 
                     <?php if ($is_admin): ?>
-                        <li><a href="admin.html" class="nav-admin"> Admin Panel</a></li>
+                        <li><a href="admin.php" class="nav-admin"> Admin Panel</a></li>
                     <?php endif; ?>
                 </ul>
 
@@ -177,12 +99,18 @@ $is_admin = ($user_role === 'admin');
                         </a>
                     <?php else: ?>
                         <div class="user-display">
-                            <a href="log.php?redirect=community.php" class="user-info"> 
-                                <span class="user-name"><?php echo $username; ?></span>
-                                <span class="user-type"><?php echo $user_label; ?></span>
+                            <a href="profile.php?redirect=community.php" class="user-info">
+                                <span class="user-name">
+                                    <i class="fa-solid fa-circle-user"></i> 
+                                    <?php echo $username; ?>
+                                </span>
+                                
+                                <span class="user-type <?php echo $badge_class; ?>">
+                                    <?php echo $user_label; ?>
+                                </span>
                             </a>
-                            <a href="logout.php" class="logout-btn-link">
-                                <button class="logout-btn"> Esci </button>
+                            <a href="logout.php" class="logout-btn">
+                                Esci
                             </a>
                         </div>
                     <?php endif; ?>
@@ -210,7 +138,7 @@ $is_admin = ($user_role === 'admin');
                     <form id="new-topic-form" method="POST" action="community.php">
                         <div class="form-group">
                             <label>Titolo Discussione</label>
-                            <input type="text" name="topic-title" id="topic-title" placeholder="Es: Problema ricarica Ionity..." required minlength="5">
+                            <input type="text" name="topic-title" id="topic-title" placeholder="Es: Problema ricarica..." required minlength="5">
                         </div>
 
                         <div class="form-group">
@@ -229,7 +157,7 @@ $is_admin = ($user_role === 'admin');
                         </div>
 
                         <div style="display:flex; justify-content:flex-end; gap:10px;">
-                            <button type="button" class="auth-btn-custom" style="background:transparent; border:1px solid white;" onclick="toggleTopicForm()">Annulla</button>
+                            <button type="button" class="auth-btn-custom" onclick="toggleTopicForm()">Annulla</button>
                             <button type="submit" name="submit_topic" class="auth-btn-custom">Pubblica</button>
                         </div>
                     </form>
@@ -245,7 +173,7 @@ $is_admin = ($user_role === 'admin');
                                 <?php echo htmlspecialchars($post['title']); ?>
                             </h3>
                             <div style="font-size:0.85rem; color:#94a3b8; margin-bottom:10px;">
-                                <span style="background:rgba(255,255,255,0.1); padding:2px 8px; border-radius:4px;">
+                                <span style="padding:2px 8px; border-radius:4px;">
                                     <?php echo htmlspecialchars($post['category']); ?>
                                 </span>
                                 • di <?php echo htmlspecialchars($post['author']); ?> • <?php echo $date_formatted; ?>
@@ -277,9 +205,9 @@ $is_admin = ($user_role === 'admin');
                     <ul class="footer-links">
                         <li><a href="home.php">Home</a></li>
                         <li><a href="map.php">Charge Map</a></li>
-                        <li><a href="autosalone.html">Autosalone</a></li>
+                        <li><a href="autosalone.php">Autosalone</a></li>
                         <?php if ($can_access_plus): ?>
-                            <li><a href="community.html">Community Forum</a></li>
+                            <li><a href="community.php">Community Forum</a></li>
                         <?php endif; ?>
                     </ul>
                 </div>

@@ -23,7 +23,7 @@ CREATE TABLE vehicles (
     battery_capacity NUMERIC(5, 2) NOT NULL, 
     max_charge_power NUMERIC(5, 2) NOT NULL,
     category VARCHAR(20) DEFAULT 'normal',
-	price NUMERIC(10, 2) DEFAULT 0.00,
+	 price NUMERIC(10, 2) DEFAULT 0.00,
     image_url VARCHAR(255) DEFAULT ''
 );
 

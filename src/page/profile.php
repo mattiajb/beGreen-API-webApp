@@ -2,7 +2,6 @@
 session_start();
 require_once 'db.php';
 if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
-    // basename() serve per sicurezza: prende solo il nome del file, ignorando percorsi strani
     $page = basename($_GET['redirect']);
     $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php', 'admin.php'];
     

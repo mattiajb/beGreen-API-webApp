@@ -1,13 +1,15 @@
 <?php
-session_start();
-require_once 'db.php'; 
+session_start(); // Avvio sessione
+require_once 'db.php'; // Importa database
 
 // Gestione redirect sicuro
 if (isset($_GET['redirect']) && !empty($_GET['redirect'])) {
-    $page = basename($_GET['redirect']);
-    // Aggiungi qui tutte le pagine valide del tuo sito
+    $page = basename($_GET['redirect']); // Estrae il nome della pagina di provenienza senza directory
+
+    // Array contentente tutte le pagine del sito
     $allowed_pages = ['home.php', 'map.php', 'autosalone.php', 'profile.php', 'community.php', 'admin.php'];
     
+    // Verifica pagina di provenienza e la salva in sessione
     if (in_array($page, $allowed_pages)) {
         $_SESSION['redirect_url'] = $page;
     } else {
@@ -38,7 +40,7 @@ $sticky_reg_email = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    $action = $_POST['action'] ?? '';
+    $action = $_POST['action'] ?? ''; // Register o Login
 
     // --- REGISTRAZIONE ---
     if ($action === 'register') {

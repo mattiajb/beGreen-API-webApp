@@ -1,17 +1,18 @@
 <?php
-session_start();
-require_once 'db.php';
+session_start(); // Avvio Sessione e Creazione Session ID -> strumento di conservazione dello stato lato server 
+require_once 'db.php'; // Importa il file db.php -> se non lo trova lancia un errore fatale
 
-if ($db) {
+if ($db) { // Verifica se la connessione al database esiste ed è valida
     $query = "SELECT id, brand, model, battery_capacity, max_charge_power FROM vehicles ORDER BY brand ASC";
-    $result = pg_query($db, $query);
-    $cars = pg_fetch_all($result);
-    if (!$cars) $cars = [];
+    $result = pg_query($db, $query); // Invia la query al database - Restituisce un set o 'false'
+    $cars = pg_fetch_all($result); // Converte tutte le righe in un array associativo multidimensionale 
+    if (!$cars) $cars = []; // In caso di errore, forza un array vuoto
 } else {
     $cars = [];
     $error_db = "Errore connessione database";
 }
 
+// Utente non loggato di di default
 $is_logged = false;
 $username = "Ospite";
 $user_role = "guest"; 
@@ -19,6 +20,7 @@ $user_label = "Visitatore";
 
 $badge_class = ""; 
 
+// Se l'utente è loggato, recupera i dati
 if (isset($_SESSION['user_id'])) {
     $is_logged = true;
     $username = htmlspecialchars($_SESSION['username']); 
@@ -42,6 +44,7 @@ if (isset($_SESSION['user_id'])) {
     }
 }
 
+// Verifica privilegi
 $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 ?>

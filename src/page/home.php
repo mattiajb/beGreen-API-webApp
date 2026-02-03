@@ -1,19 +1,22 @@
 <?php
-session_start();
-require_once 'db.php';
+session_start(); // Avvio Sessione e Creazione Session ID -> strumento di conservazione dello stato lato server 
+require_once 'db.php'; // Importa il file db.php -> se non lo trova lancia un errore fatale
 
-$is_logged = false;
-$username = "Ospite";
+// Utente non loggato di di default
+$is_logged = false; 
+$username = "Ospite"; 
 $user_role = "guest"; 
 $user_label = "Visitatore";
 
 $badge_class = ""; 
 
-if (isset($_SESSION['user_id'])) {
+// Se l'utente è loggato, recupera i dati
+if (isset($_SESSION['user_id'])) { 
     $is_logged = true;
     $username = htmlspecialchars($_SESSION['username']); 
     $user_role = $_SESSION['role']; 
     
+    // Verifica ruolo utente con switch
     switch ($user_role) {
         case 'admin':
             $user_label = "ADMIN";
@@ -31,6 +34,8 @@ if (isset($_SESSION['user_id'])) {
             break;
     }
 }
+
+// Verifica permessi speciali
 $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 ?>

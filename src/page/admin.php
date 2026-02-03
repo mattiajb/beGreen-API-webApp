@@ -34,6 +34,7 @@ if (isset($_SESSION['user_id'])) {
 $can_access_plus = ($user_role === 'plus' || $user_role === 'admin');
 $is_admin = ($user_role === 'admin');
 
+// Gestione eliminazione elementi da db
 if (isset($_GET['delete_user'])) {
     $id = (int)$_GET['delete_user'];
     pg_query_params($db, "DELETE FROM users WHERE id = $1 AND role != 'admin'", array($id));
@@ -55,6 +56,7 @@ if (isset($_GET['delete_vehicle'])) {
     exit();
 }
 
+// Gestione aggiunta auto al db
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_car'])) {
     $brand = htmlspecialchars($_POST['brand']);
     $model = htmlspecialchars($_POST['model']);
